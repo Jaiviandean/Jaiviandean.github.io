@@ -1,3 +1,6 @@
+body {
+    background-color: #787878;
+}
 .topnav {
     background-color: #333;
     overflow: hidden;
@@ -21,4 +24,9 @@
 .topnav .active {
     background-color: #3087d3;
     color:white;
+}
+#Title {
+    text-align: center;
+    font-family: "Montserrat",sans-serif;
+    font-weight: 400;
 }
