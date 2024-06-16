@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FYSC </title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: white;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #222;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00f;
+        }
+
+        .auth-buttons button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .auth-buttons .sign-up {
+            background-color: grey;
+            color: white;
+        }
+
+        .auth-buttons .log-in {
+            background-color: green;
+            color: white;
+        }
+
+        .auth-buttons .sign-out,
+        .auth-buttons .make-video,
+        .auth-buttons .manage-videos {
+            display: none;
+            background-color: red;
+            color: white;
+        }
+
+        .auth-buttons .make-video {
+            background-color: blue;
+        }
+
+        .auth-buttons .manage-videos {
+            background-color: orange;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin: 0;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+ 
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #333;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .modal-content input,
+        .modal-content textarea {
+            width: calc(100% - 40px);
+            padding: 10px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 5px;
+        }
+
+        .modal-content .auth-btn,
+        .modal-content .video-btn {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+
+        .video-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .video-item img {
+            width: 120px;
+            height: 90px;
+            margin-right: 20px;
+        }
+
+        .video-item h3 {
+            margin: 0;
+            flex-grow: 1;
+        }
+
+        .video-item button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .video-item .delete-btn {
+            background-color: red;
+            color: white;
+        }
+
+        .video-item .stats-btn {
+            background-color: blue;
+            color: white;
+        }
+
+
+        .stats-modal-content {
+            background-color: #333;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stats-modal-content h3,
+        .stats-modal-content p {
+            margin: 0;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">FYSC</div>
+        <div class="auth-buttons">
+            <button class="sign-up" onclick="openSignUpModal()">Sign Up</button>
+            <button class="log-in" onclick="openLogInModal()">Log In</button>
+            <button class="sign-out" onclick="signOut()">Sign Out</button>
+            <button class="make-video" onclick="openMakeVideoModal()">Make a Video</button>
+            <button class="manage-videos" onclick="openManageVideos()">FYSC+ Studio</button>
+        </div>
+    </header>
+    <main>
+        <div class="section">
+            <h2 id="welcome-message"></h2>
+        </div>
+        <div class="section">
+            <h2>Recommended Today</h2>
+        </div>
+        <div class="section">
+            <h2>Channels to Explore</h2>
+        </div>
+        <div class="section">
+            <h2>Trends</h2>
+        </div>
+        <div class="section">
+            <h2>Shorts</h2>
+        </div>
+        <div class="section" id="manage-videos-section" style="display:none;">
+            <h2>Manage Your Videos</h2>
+            <div id="video-list"></div>
+        </div>
+    </main>
+
+
+    <div id="signUpModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSignUpModal()">&times;</span>
+            <h2>Sign In to <span style="color: #00f;">FYSC</span><span style="color: #f00;">+</span></h2>
+            <input type="text" id="signUpUsername" placeholder="Channel Name">
+            <input type="password" id="signUpPassword" placeholder="Password (8 char min)">
+            <input type="password" id="signUpRetypePassword" placeholder="Retype Password">
+            <button class="auth-btn" onclick="signUp()">Sign In</button>
+        </div>
+    </div>
+
+
+    <div id="logInModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeLogInModal()">&times;</span>
+            <h2>Login to <span style="color: #00f;">FYSC</span><span style="color: #f00;">+</span></h2>
+            <input type="text" id="logInUsername" placeholder="Channel Name">
+            <input type="password" id="logInPassword" placeholder="Password (8 char min)">
+            <button class="auth-btn" onclick="logIn()">Log In</button>
+        </div>
+    </div>
+
+
+    <div id="makeVideoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeMakeVideoModal()">&times;</span>
+            <h2>Create a Video</h2>
+            <input type="text" id="videoTitle" placeholder="Video Title">
+            <textarea id="videoDescription" rows="4" placeholder="Video Description"></textarea>
+            <input type="file" id="videoThumbnail" accept="image/*">
+            <button class="video-btn" onclick="createVideo()">Upload Video</button>
+        </div>
+    </div>
+
+
+    <div id="viewStatsModal" class="modal">
+        <div class="stats-modal-content">
+            <span class="close" onclick="closeViewStatsModal()">&times;</span>
+            <h2>View Statistics</h2>
+            <img id="stats-thumbnail" src="" alt="Thumbnail">
+            <h3 id="stats-title"></h3>
+            <p id="stats-views">Views: 0 (LIVE)</p>
+            <p id="stats-impressions">Impressions: 0 (LIVE)</p>
+            <p>Subscribers earned from this video: 0</p>
+            <h3>Graph:</h3>
+        </div>
+    </div>
+
+    <script>
+        let videos = [];
+
+        function openSignUpModal() {
+            document.getElementById("signUpModal").style.display = "block";
+        }
+
+        function closeSignUpModal() {
+            document.getElementById("signUpModal").style.display = "none";
+        }
+
+        function openLogInModal() {
+            document.getElementById("logInModal").style.display = "block";
+        }
+
+        function closeLogInModal() {
+            document.getElementById("logInModal").style.display = "none";
+        }
+
+        function openMakeVideoModal() {
+            document.getElementById("makeVideoModal").style.display = "block";
+        }
+
+        function closeMakeVideoModal() {
+            document.getElementById("makeVideoModal").style.display = "none";
+        }
+
+        function openViewStatsModal(video) {
+            document.getElementById("stats-thumbnail").src = video.thumbnail;
+            document.getElementById("stats-title").textContent = video.title;
+            document.getElementById("stats-views").textContent = `Views: ${video.views} (LIVE)`;
+            document.getElementById("stats-impressions").textContent = `Impressions: ${video.impressions} (LIVE)`;
+            document.getElementById("viewStatsModal").style.display = "block";
+        }
+
+        function closeViewStatsModal() {
+            document.getElementById("viewStatsModal").style.display = "none";
+        }
+
+        function signUp() {
+            const username = document.getElementById("signUpUsername").value;
+            const password = document.getElementById("signUpPassword").value;
+            const retypePassword = document.getElementById("signUpRetypePassword").value;
+
+            if (password !== retypePassword) {
+                alert("Passwords do not match!");
+                return;
+            }
+
+            localStorage.setItem("username", username);
+            localStorage.setItem("password", password);
+            localStorage.setItem("videos", JSON.stringify([]));
+
+            closeSignUpModal();
+            checkAuth();
+        }
+
+        function logIn() {
+            const username = document.getElementById("logInUsername").value;
+            const password = document.getElementById("logInPassword").value;
+
+            const storedUsername = localStorage.getItem("username");
+            const storedPassword = localStorage.getItem("password");
+
+            if (username === storedUsername && password === storedPassword) {
+                sessionStorage.setItem("loggedIn", "true");
+                closeLogInModal();
+                checkAuth();
+            } else {
+                alert("Incorrect username or password!");
+            }
+        }
+
+        function signOut() {
+            sessionStorage.removeItem("loggedIn");
+            checkAuth();
+        }
+
+        function checkAuth() {
+            const loggedIn = sessionStorage.getItem("loggedIn");
+            const welcomeMessage = document.getElementById("welcome-message");
+            const signUpButton = document.querySelector(".auth-buttons .sign-up");
+            const logInButton = document.querySelector(".auth-buttons .log-in");
+            const signOutButton = document.querySelector(".auth-buttons .sign-out");
+            const makeVideoButton = document.querySelector(".auth-buttons .make-video");
+            const manageVideosButton = document.querySelector(".auth-buttons .manage-videos");
+
+            if (loggedIn) {
+                const username = localStorage.getItem("username");
+                welcomeMessage.textContent = `Welcome, ${username}`;
+                signUpButton.style.display = "none";
+                logInButton.style.display = "none";
+                signOutButton.style.display = "inline-block";
+                makeVideoButton.style.display = "inline-block";
+                manageVideosButton.style.display = "inline-block";
+                displayVideos();
+            } else {
+                welcomeMessage.textContent = "";
+                signUpButton.style.display = "inline-block";
+                logInButton.style.display = "inline-block";
+                signOutButton.style.display = "none";
+                makeVideoButton.style.display = "none";
+                manageVideosButton.style.display = "none";
+            }
+        }
+
+        function createVideo() {
+            const title = document.getElementById("videoTitle").value;
+            const description = document.getElementById("videoDescription").value;
+            const thumbnailInput = document.getElementById("videoThumbnail");
+
+            if (title && thumbnailInput.files.length > 0) {
+                const thumbnail = URL.createObjectURL(thumbnailInput.files[0]);
+                const newVideo = {
+                    title,
+                    description,
+                    thumbnail,
+                    views: 0,
+                    impressions: 0,
+                    ctr: Math.random() * (0.1 - 0.01) + 0.01
+                };
+
+                videos.push(newVideo);
+                localStorage.setItem("videos", JSON.stringify(videos));
+
+                closeMakeVideoModal();
+                displayVideos();
+                startVideoSimulation(newVideo);
+            } else {
+                alert("Please provide a title and thumbnail for the video.");
+            }
+        }
+
+        function deleteVideo(index) {
+            videos.splice(index, 1);
+            localStorage.setItem("videos", JSON.stringify(videos));
+            displayVideos();
+        }
+
+        function displayVideos() {
+            const videoList = document.getElementById("video-list");
+            videoList.innerHTML = "";
+
+            videos.forEach((video, index) => {
+                const videoItem = document.createElement("div");
+                videoItem.className = "video-item";
+
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <h3>${video.title}</h3>
+                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+                    <button class="stats-btn" onclick="openViewStatsModal(${index})">View Statistics</button>
+                `;
+
+                videoList.appendChild(videoItem);
+            });
+
+            document.getElementById("manage-videos-section").style.display = "block";
+        }
+
+        function openManageVideos() {
+            displayVideos();
+            document.getElementById("manage-videos-section").style.display = "block";
+        }
+
+        function startVideoSimulation(video) {
+            function updateStats() {
+                video.impressions += Math.floor(Math.random() * (100 - 15 + 1)) + 15;
+                video.views += Math.floor(video.impressions * video.ctr);
+
+                if (document.getElementById("viewStatsModal").style.display === "block") {
+                    document.getElementById("stats-views").textContent = `Views: ${video.views} (LIVE)`;
+                    document.getElementById("stats-impressions").textContent = `Impressions: ${video.impressions} (LIVE)`;
+                }
+            }
+
+            setInterval(updateStats, 1000);
+        }
+
+
+        window.onload = () => {
+            const storedVideos = localStorage.getItem("videos");
+            if (storedVideos) {
+                videos = JSON.parse(storedVideos);
+            }
+            checkAuth();
+        }
+    </script>
+</body>
+</html>
