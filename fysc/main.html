@@ -121,7 +121,8 @@
         }
 
         .modal-content .auth-btn,
-        .modal-content .video-btn {
+        .modal-content .video-btn,
+        .modal-content .customize-btn {
             background-color: green;
             color: white;
             padding: 10px 20px;
@@ -209,7 +210,7 @@
             <button class="sign-out" onclick="signOut()">Sign Out</button>
             <button class="make-video" onclick="openMakeVideoModal()">Make a Video</button>
             <button class="manage-videos" onclick="openManageVideos()">FYSC+ Studio</button>
-            <button class="customize-channel" onclick="customizeChannel()">Customize Channel</button>
+            <button class="customize-channel" onclick="openCustomizeChannelModal()">Customize Channel</button>
             <button class="view-channel" onclick="viewChannel()">View Channel</button>
         </div>
     </header>
@@ -274,10 +275,20 @@
         <div class="stats-modal-content">
             <span class="close" onclick="closeViewStatsModal()">&times;</span>
             <h2>View Statistics</h2>
-            <img id="stats-thumbnail" src="" alt="Thumbnail">
+            <img id="stats-thumbnail" src="" alt="Thumbnail" style="width: 100%; height: auto;">
             <h3 id="stats-title"></h3>
             <p id="stats-description"></p>
             <div id="stats-data"></div>
+        </div>
+    </div>
+
+    <div id="customizeChannelModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCustomizeChannelModal()">&times;</span>
+            <h2>Customize Your Channel</h2>
+            <input type="text" id="channelName" placeholder="Channel Name">
+            <textarea id="channelDescription" rows="4" placeholder="Channel Description"></textarea>
+            <button class="customize-btn" onclick="customizeChannel()">Save Changes</button>
         </div>
     </div>
 
@@ -312,13 +323,21 @@
             document.getElementById('viewStatsModal').style.display = 'none';
         }
 
+        function openCustomizeChannelModal() {
+            document.getElementById('customizeChannelModal').style.display = 'block';
+        }
+
+        function closeCustomizeChannelModal() {
+            document.getElementById('customizeChannelModal').style.display = 'none';
+        }
+
         function signUp() {
             const username = document.getElementById('signUpUsername').value;
             const password = document.getElementById('signUpPassword').value;
             const retypePassword = document.getElementById('signUpRetypePassword').value;
 
             if (password === retypePassword) {
-                currentUser = { username, password, videos: [] };
+                currentUser = { username, password, videos: [], channelName: username, channelDescription: '' };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUI();
                 closeSignUpModal();
@@ -471,12 +490,20 @@
         }
 
         function customizeChannel() {
-            alert('Customize channel functionality coming soon!');
+            const channelName = document.getElementById('channelName').value;
+            const channelDescription = document.getElementById('channelDescription').value;
+
+            currentUser.channelName = channelName;
+            currentUser.channelDescription = channelDescription;
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUI();
+            closeCustomizeChannelModal();
         }
 
         function viewChannel() {
-            const channelName = currentUser.username;
-            const channelDescription = 'This is the channel description'; // Replace with actual description if available
+            const channelName = currentUser.channelName;
+            const channelDescription = currentUser.channelDescription;
 
             window.location.href = `channel_page.html?channel=${encodeURIComponent(channelName)}&description=${encodeURIComponent(channelDescription)}`;
         }
