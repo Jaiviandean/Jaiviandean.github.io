@@ -132,6 +132,13 @@
                 <button onclick="saveChannelSettings()">Save Changes</button>
             </div>
         </div>
+        <div class="section">
+            <form action="channel_page.html" method="get">
+                <input type="hidden" id="channelNameInput" name="channel_name">
+                <input type="hidden" id="channelDescriptionInput" name="channel_description">
+                <button type="submit" onclick="navigateToChannelPage()">Go to Channel Page</button>
+            </form>
+        </div>
     </main>
 
     <script>
@@ -169,6 +176,11 @@
             }
 
             alert("Channel settings saved!");
+        }
+
+        function navigateToChannelPage() {
+            document.getElementById("channelNameInput").value = document.getElementById("channelName").value;
+            document.getElementById("channelDescriptionInput").value = document.getElementById("channelDescription").value;
         }
 
         window.onload = () => {
