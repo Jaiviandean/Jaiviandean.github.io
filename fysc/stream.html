@@ -34,8 +34,11 @@
             el: odometerSetup,
         })
         setTimeout(function(){
+            main.update(x)
+        })
+        setInterval(() => {
             main.update(x++)
-        },2000)
+        }, 2000);
     </script>
 </body>
 </head>
