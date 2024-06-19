@@ -3,52 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Channel Info</title>
+    <title>Display Channel</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             background-color: #333;
             color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
-            text-align: center;
-            background-color: #222;
             padding: 20px;
+        }
+
+        .channel-info {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #222;
             border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            text-align: center;
         }
 
-        .container h1 {
-            color: #00f;
+        .channel-info img {
+            max-width: 200px;
+            border-radius: 50%;
+            margin-bottom: 20px;
         }
 
-        .container p {
-            color: #ddd;
+        .channel-info h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .channel-info p {
+            font-size: 16px;
+            line-height: 1.6;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="channelName">Channel Name</h1>
-        <p id="channelDescription">Channel Description</p>
+    <div class="channel-info">
+        <img id="profilePicture" src="" alt="Profile Picture">
+        <h1 id="channelName"></h1>
+        <p id="channelDescription"></p>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (storedUser) {
-                const channelName = storedUser.channelName || 'No Channel Name Set';
-                const channelDescription = storedUser.channelDescription || 'No Channel Description Set';
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const channelName = urlParams.get('channel');
+            const channelDescription = urlParams.get('description');
+            const profilePicture = urlParams.get('profilePicture');
+
+            if (channelName && channelDescription) {
                 document.getElementById('channelName').textContent = channelName;
                 document.getElementById('channelDescription').textContent = channelDescription;
-            } else {
-                document.getElementById('channelName').textContent = 'No Channel Name Set';
-                document.getElementById('channelDescription').textContent = 'No Channel Description Set';
+            }
+
+            if (profilePicture) {
+                document.getElementById('profilePicture').src = decodeURIComponent(profilePicture);
             }
         });
     </script>

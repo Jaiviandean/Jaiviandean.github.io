@@ -275,7 +275,7 @@
         <div class="stats-modal-content">
             <span class="close" onclick="closeViewStatsModal()">&times;</span>
             <h2>View Statistics</h2>
-            <img id="stats-thumbnail" src="" alt="Thumbnail" style="width: 100%; height: auto;">
+            <img id="stats-thumbnail" src="" alt="Thumbnail style="width: 100%; height: auto;">
             <h3 id="stats-title"></h3>
             <p id="stats-description"></p>
             <div id="stats-data"></div>
@@ -288,6 +288,7 @@
             <h2>Customize Your Channel</h2>
             <input type="text" id="channelName" placeholder="Channel Name">
             <textarea id="channelDescription" rows="4" placeholder="Channel Description"></textarea>
+            <input type="file" id="profilePicture" accept="image/*">
             <button class="customize-btn" onclick="customizeChannel()">Save Changes</button>
         </div>
     </div>
@@ -337,7 +338,7 @@
             const retypePassword = document.getElementById('signUpRetypePassword').value;
 
             if (password === retypePassword) {
-                currentUser = { username, password, videos: [], channelName: username, channelDescription: '' };
+                currentUser = { username, password, videos: [], channelName: username, channelDescription: '', profilePicture: '' };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUI();
                 closeSignUpModal();
@@ -492,10 +493,23 @@
         function customizeChannel() {
             const channelName = document.getElementById('channelName').value;
             const channelDescription = document.getElementById('channelDescription').value;
+            const profilePicture = document.getElementById('profilePicture').files[0];
 
+            if (profilePicture) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    currentUser.profilePicture = e.target.result;
+                    saveChannelData(channelName, channelDescription);
+                };
+                reader.readAsDataURL(profilePicture);
+            } else {
+                saveChannelData(channelName, channelDescription);
+            }
+        }
+
+        function saveChannelData(channelName, channelDescription) {
             currentUser.channelName = channelName;
             currentUser.channelDescription = channelDescription;
-
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateUI();
             closeCustomizeChannelModal();
@@ -504,8 +518,9 @@
         function viewChannel() {
             const channelName = currentUser.channelName;
             const channelDescription = currentUser.channelDescription;
+            const profilePicture = currentUser.profilePicture;
 
-            window.location.href = `channel_page.html?channel=${encodeURIComponent(channelName)}&description=${encodeURIComponent(channelDescription)}`;
+            window.location.href = `display.html?channel=${encodeURIComponent(channelName)}&description=${encodeURIComponent(channelDescription)}&profilePicture=${encodeURIComponent(profilePicture)}`;
         }
 
         document.addEventListener('DOMContentLoaded', () => {
@@ -518,3 +533,4 @@
     </script>
 </body>
 </html>
+
