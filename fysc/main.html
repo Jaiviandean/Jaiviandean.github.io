@@ -95,7 +95,6 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgb(0,0,0);
             background-color: rgba(0,0,0,0.4);
             padding-top: 60px;
         }
@@ -294,6 +293,7 @@
 
     <script>
         let currentUser = null;
+        let subscriberCount = 0; // Initialize subscriber count
 
         function openSignUpModal() {
             document.getElementById('signUpModal').style.display = 'block';
@@ -337,7 +337,7 @@
             const retypePassword = document.getElementById('signUpRetypePassword').value;
 
             if (password === retypePassword) {
-                currentUser = { username, password, videos: [], channelName: username, channelDescription: '' };
+                currentUser = { username, password, videos: [], channelName: username, channelDescription: '', subscribers: 0 };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUI();
                 closeSignUpModal();
@@ -377,11 +377,28 @@
                     const video = { title, description, thumbnail: e.target.result, stats: generateRandomStats() };
                     currentUser.videos.push(video);
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    simulateSubscriberIncrease(); // Simulate subscriber increase
                     closeMakeVideoModal();
                 };
                 reader.readAsDataURL(thumbnail);
             } else {
                 alert('Please fill in all fields and select a thumbnail.');
+            }
+        }
+
+        function simulateSubscriberIncrease() {
+            const increase = Math.floor(Math.random() * 10) + 1; // Random increase between 1 to 10
+            currentUser.subscribers += increase;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateSubscriberCount(); // Update subscriber count in UI
+        }
+
+        function updateSubscriberCount() {
+            const viewChannelButton = document.querySelector('.view-channel');
+            if (currentUser) {
+                viewChannelButton.textContent = `View Channel (${currentUser.subscribers} subscribers)`;
+            } else {
+                viewChannelButton.textContent = `View Channel`;
             }
         }
 
@@ -407,6 +424,7 @@
                 viewChannelButton.style.display = 'inline-block';
                 manageVideosSection.style.display = 'block';
                 renderVideos();
+                updateSubscriberCount();
             } else {
                 welcomeMessage.textContent = '';
                 signUpButton.style.display = 'inline-block';
@@ -518,3 +536,4 @@
     </script>
 </body>
 </html>
+
