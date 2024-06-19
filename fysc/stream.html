@@ -29,11 +29,13 @@
     </div>
     <script>
         const odometerSetup = document.getElementById("odometer")
+        var x = 2
         const main = new Odometer({
-            el: odometer,
+            el: odometerSetup,
         })
-
-        main.update(Math.floor(Math.random() * 36))
+        setTimeout(function(){
+            main.update(x++)
+        },2000)
     </script>
 </body>
 </head>
