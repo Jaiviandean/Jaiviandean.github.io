@@ -28,10 +28,12 @@
         <div id="odometer">0</div>
     </div>
     <script>
-        setTimeout(function(){
-            odometer.innerHTML = 0;
-            // test
+        const odometerSetup = document.getElementById("odometer")
+        const main = new Odometer({
+            el: odometer,
         })
+
+        main.update(Math.floor(Math.random() * 32))
     </script>
 </body>
 </head>
