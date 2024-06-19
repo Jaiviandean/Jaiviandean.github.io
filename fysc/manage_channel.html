@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Channel - FYSC</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background-color: #333;
+            color: white;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #222;
+            padding: 10px 20px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00f;
+        }
+
+        .auth-buttons button {
+            margin-left: 10px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .auth-buttons .sign-out {
+            background-color: red;
+            color: white;
+        }
+
+        main {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 20px;
+        }
+
+        .section h2 {
+            margin: 0;
+            padding: 20px;
+            background-color: #444;
+            border-radius: 5px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .form-group input[type="text"],
+        .form-group textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #555;
+            color: white;
+        }
+
+        .form-group input[type="file"] {
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            background-color: #555;
+            color: white;
+        }
+
+        .form-group button {
+            background-color: green;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .form-group img {
+            max-width: 100%;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="fysc.png" width="178px" height="38px">
+        </div>
+        <div class="auth-buttons">
+            <button class="sign-out" onclick="signOut()">Sign Out</button>
+        </div>
+    </header>
+    <main>
+        <div class="section">
+            <h2>Manage Your Channel</h2>
+            <div class="form-group">
+                <label for="channelName">Channel Name</label>
+                <input type="text" id="channelName" placeholder="Enter your channel name">
+            </div>
+            <div class="form-group">
+                <label for="channelDescription">Channel Description</label>
+                <textarea id="channelDescription" rows="4" placeholder="Enter your channel description"></textarea>
+            </div>
+            <div class="form-group">
+                <label for="channelBanner">Channel Banner</label>
+                <input type="file" id="channelBanner" accept="image/*">
+                <img id="bannerPreview" src="#" alt="Banner Preview" style="display:none;">
+            </div>
+            <div class="form-group">
+                <label for="channelProfilePicture">Channel Profile Picture</label>
+                <input type="file" id="channelProfilePicture" accept="image/*">
+                <img id="profilePicturePreview" src="#" alt="Profile Picture Preview" style="display:none;">
+            </div>
+            <div class="form-group">
+                <button onclick="saveChannelSettings()">Save Changes</button>
+            </div>
+        </div>
+        <div class="section">
+            <form action="channel_page.html" method="get">
+                <input type="hidden" id="channelNameInput" name="channel_name">
+                <input type="hidden" id="channelDescriptionInput" name="channel_description">
+                <button type="submit" onclick="navigateToChannelPage()">Go to Channel Page</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        function signOut() {
+            sessionStorage.removeItem("loggedIn");
+            window.location.href = 'index.html';
+        }
+
+        function saveChannelSettings() {
+            const channelName = document.getElementById("channelName").value;
+            const channelDescription = document.getElementById("channelDescription").value;
+            const bannerInput = document.getElementById("channelBanner");
+            const profilePictureInput = document.getElementById("channelProfilePicture");
+
+            if (channelName) {
+                localStorage.setItem("channelName", channelName);
+            }
+
+            if (channelDescription) {
+                localStorage.setItem("channelDescription", channelDescription);
+            }
+
+            if (bannerInput.files.length > 0) {
+                const bannerURL = URL.createObjectURL(bannerInput.files[0]);
+                localStorage.setItem("channelBanner", bannerURL);
+                document.getElementById("bannerPreview").src = bannerURL;
+                document.getElementById("bannerPreview").style.display = 'block';
+            }
+
+            if (profilePictureInput.files.length > 0) {
+                const profilePictureURL = URL.createObjectURL(profilePictureInput.files[0]);
+                localStorage.setItem("channelProfilePicture", profilePictureURL);
+                document.getElementById("profilePicturePreview").src = profilePictureURL;
+                document.getElementById("profilePicturePreview").style.display = 'block';
+            }
+
+            alert("Channel settings saved!");
+        }
+
+        function navigateToChannelPage() {
+            document.getElementById("channelNameInput").value = document.getElementById("channelName").value;
+            document.getElementById("channelDescriptionInput").value = document.getElementById("channelDescription").value;
+        }
+
+        window.onload = () => {
+            const channelName = localStorage.getItem("channelName");
+            const channelDescription = localStorage.getItem("channelDescription");
+            const channelBanner = localStorage.getItem("channelBanner");
+            const channelProfilePicture = localStorage.getItem("channelProfilePicture");
+
+            if (channelName) {
+                document.getElementById("channelName").value = channelName;
+            }
+
+            if (channelDescription) {
+                document.getElementById("channelDescription").value = channelDescription;
+            }
+
+            if (channelBanner) {
+                document.getElementById("bannerPreview").src = channelBanner;
+                document.getElementById("bannerPreview").style.display = 'block';
+            }
+
+            if (channelProfilePicture) {
+                document.getElementById("profilePicturePreview").src = channelProfilePicture;
+                document.getElementById("profilePicturePreview").style.display = 'block';
+            }
+        }
+    </script>
+</body>
+</html>

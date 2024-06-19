@@ -47,7 +47,9 @@
 
         .auth-buttons .sign-out,
         .auth-buttons .make-video,
-        .auth-buttons .manage-videos {
+        .auth-buttons .manage-videos,
+        .auth-buttons .customize-channel,
+        .auth-buttons .view-channel {
             display: none;
             background-color: red;
             color: white;
@@ -59,6 +61,14 @@
 
         .auth-buttons .manage-videos {
             background-color: orange;
+        }
+
+        .auth-buttons .customize-channel {
+            background-color: purple;
+        }
+
+        .auth-buttons .view-channel {
+            background-color: teal;
         }
 
         main {
@@ -76,7 +86,6 @@
             border-radius: 5px;
         }
 
- 
         .modal {
             display: none;
             position: fixed;
@@ -112,7 +121,8 @@
         }
 
         .modal-content .auth-btn,
-        .modal-content .video-btn {
+        .modal-content .video-btn,
+        .modal-content .customize-btn {
             background-color: green;
             color: white;
             padding: 10px 20px;
@@ -134,7 +144,6 @@
             text-decoration: none;
             cursor: pointer;
         }
-
 
         .video-item {
             display: flex;
@@ -172,7 +181,6 @@
             color: white;
         }
 
-
         .stats-modal-content {
             background-color: #333;
             margin: 5% auto;
@@ -202,6 +210,8 @@
             <button class="sign-out" onclick="signOut()">Sign Out</button>
             <button class="make-video" onclick="openMakeVideoModal()">Make a Video</button>
             <button class="manage-videos" onclick="openManageVideos()">FYSC+ Studio</button>
+            <button class="customize-channel" onclick="openCustomizeChannelModal()">Customize Channel</button>
+            <button class="view-channel" onclick="viewChannel()">View Channel</button>
         </div>
     </header>
     <main>
@@ -229,7 +239,6 @@
         </div>
     </main>
 
-
     <div id="signUpModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeSignUpModal()">&times;</span>
@@ -241,7 +250,6 @@
         </div>
     </div>
 
-
     <div id="logInModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeLogInModal()">&times;</span>
@@ -251,7 +259,6 @@
             <button class="auth-btn" onclick="logIn()">Log In</button>
         </div>
     </div>
-
 
     <div id="makeVideoModal" class="modal">
         <div class="modal-content">
@@ -264,207 +271,250 @@
         </div>
     </div>
 
-
     <div id="viewStatsModal" class="modal">
         <div class="stats-modal-content">
             <span class="close" onclick="closeViewStatsModal()">&times;</span>
             <h2>View Statistics</h2>
-            <img id="stats-thumbnail" src="" alt="Thumbnail">
+            <img id="stats-thumbnail" src="" alt="Thumbnail" style="width: 100%; height: auto;">
             <h3 id="stats-title"></h3>
-            <p id="stats-views">Views: 0 (LIVE)</p>
-            <p id="stats-impressions">Impressions: 0 (LIVE)</p>
-            <p>Subscribers earned from this video: 0</p>
-            <h3>Graph:</h3>
+            <p id="stats-description"></p>
+            <div id="stats-data"></div>
+        </div>
+    </div>
+
+    <div id="customizeChannelModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeCustomizeChannelModal()">&times;</span>
+            <h2>Customize Your Channel</h2>
+            <input type="text" id="channelName" placeholder="Channel Name">
+            <textarea id="channelDescription" rows="4" placeholder="Channel Description"></textarea>
+            <button class="customize-btn" onclick="customizeChannel()">Save Changes</button>
         </div>
     </div>
 
     <script>
-        let videos = [];
+        let currentUser = null;
 
         function openSignUpModal() {
-            document.getElementById("signUpModal").style.display = "block";
+            document.getElementById('signUpModal').style.display = 'block';
         }
 
         function closeSignUpModal() {
-            document.getElementById("signUpModal").style.display = "none";
+            document.getElementById('signUpModal').style.display = 'none';
         }
 
         function openLogInModal() {
-            document.getElementById("logInModal").style.display = "block";
+            document.getElementById('logInModal').style.display = 'block';
         }
 
         function closeLogInModal() {
-            document.getElementById("logInModal").style.display = "none";
+            document.getElementById('logInModal').style.display = 'none';
         }
 
         function openMakeVideoModal() {
-            document.getElementById("makeVideoModal").style.display = "block";
+            document.getElementById('makeVideoModal').style.display = 'block';
         }
 
         function closeMakeVideoModal() {
-            document.getElementById("makeVideoModal").style.display = "none";
-        }
-
-        function openViewStatsModal(video) {
-            document.getElementById("stats-thumbnail").src = video.thumbnail;
-            document.getElementById("stats-title").textContent = video.title;
-            document.getElementById("stats-views").textContent = `Views: ${video.views} (LIVE)`;
-            document.getElementById("stats-impressions").textContent = `Impressions: ${video.impressions} (LIVE)`;
-            document.getElementById("viewStatsModal").style.display = "block";
+            document.getElementById('makeVideoModal').style.display = 'none';
         }
 
         function closeViewStatsModal() {
-            document.getElementById("viewStatsModal").style.display = "none";
+            document.getElementById('viewStatsModal').style.display = 'none';
+        }
+
+        function openCustomizeChannelModal() {
+            document.getElementById('customizeChannelModal').style.display = 'block';
+        }
+
+        function closeCustomizeChannelModal() {
+            document.getElementById('customizeChannelModal').style.display = 'none';
         }
 
         function signUp() {
-            const username = document.getElementById("signUpUsername").value;
-            const password = document.getElementById("signUpPassword").value;
-            const retypePassword = document.getElementById("signUpRetypePassword").value;
+            const username = document.getElementById('signUpUsername').value;
+            const password = document.getElementById('signUpPassword').value;
+            const retypePassword = document.getElementById('signUpRetypePassword').value;
 
-            if (password !== retypePassword) {
-                alert("Passwords do not match!");
-                return;
+            if (password === retypePassword) {
+                currentUser = { username, password, videos: [], channelName: username, channelDescription: '' };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUI();
+                closeSignUpModal();
+            } else {
+                alert('Passwords do not match.');
             }
-
-            localStorage.setItem("username", username);
-            localStorage.setItem("password", password);
-            localStorage.setItem("videos", JSON.stringify([]));
-
-            closeSignUpModal();
-            checkAuth();
         }
 
         function logIn() {
-            const username = document.getElementById("logInUsername").value;
-            const password = document.getElementById("logInPassword").value;
+            const username = document.getElementById('logInUsername').value;
+            const password = document.getElementById('logInPassword').value;
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
 
-            const storedUsername = localStorage.getItem("username");
-            const storedPassword = localStorage.getItem("password");
-
-            if (username === storedUsername && password === storedPassword) {
-                sessionStorage.setItem("loggedIn", "true");
+            if (storedUser && storedUser.username === username && storedUser.password === password) {
+                currentUser = storedUser;
+                updateUI();
                 closeLogInModal();
-                checkAuth();
             } else {
-                alert("Incorrect username or password!");
+                alert('Invalid login credentials.');
             }
         }
 
         function signOut() {
-            sessionStorage.removeItem("loggedIn");
-            checkAuth();
-        }
-
-        function checkAuth() {
-            const loggedIn = sessionStorage.getItem("loggedIn");
-            const welcomeMessage = document.getElementById("welcome-message");
-            const signUpButton = document.querySelector(".auth-buttons .sign-up");
-            const logInButton = document.querySelector(".auth-buttons .log-in");
-            const signOutButton = document.querySelector(".auth-buttons .sign-out");
-            const makeVideoButton = document.querySelector(".auth-buttons .make-video");
-            const manageVideosButton = document.querySelector(".auth-buttons .manage-videos");
-
-            if (loggedIn) {
-                const username = localStorage.getItem("username");
-                welcomeMessage.textContent = `Welcome, ${username}`;
-                signUpButton.style.display = "none";
-                logInButton.style.display = "none";
-                signOutButton.style.display = "inline-block";
-                makeVideoButton.style.display = "inline-block";
-                manageVideosButton.style.display = "inline-block";
-                displayVideos();
-            } else {
-                welcomeMessage.textContent = "";
-                signUpButton.style.display = "inline-block";
-                logInButton.style.display = "inline-block";
-                signOutButton.style.display = "none";
-                makeVideoButton.style.display = "none";
-                manageVideosButton.style.display = "none";
-            }
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            updateUI();
         }
 
         function createVideo() {
-            const title = document.getElementById("videoTitle").value;
-            const description = document.getElementById("videoDescription").value;
-            const thumbnailInput = document.getElementById("videoThumbnail");
+            const title = document.getElementById('videoTitle').value;
+            const description = document.getElementById('videoDescription').value;
+            const thumbnail = document.getElementById('videoThumbnail').files[0];
 
-            if (title && thumbnailInput.files.length > 0) {
-                const thumbnail = URL.createObjectURL(thumbnailInput.files[0]);
-                const newVideo = {
-                    title,
-                    description,
-                    thumbnail,
-                    views: 0,
-                    impressions: 0,
-                    ctr: Math.random() * (0.1 - 0.01) + 0.01
+            if (title && description && thumbnail) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const video = { title, description, thumbnail: e.target.result, stats: generateRandomStats() };
+                    currentUser.videos.push(video);
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    closeMakeVideoModal();
                 };
-
-                videos.push(newVideo);
-                localStorage.setItem("videos", JSON.stringify(videos));
-
-                closeMakeVideoModal();
-                displayVideos();
-                startVideoSimulation(newVideo);
+                reader.readAsDataURL(thumbnail);
             } else {
-                alert("Please provide a title and thumbnail for the video.");
+                alert('Please fill in all fields and select a thumbnail.');
             }
         }
 
-        function deleteVideo(index) {
-            videos.splice(index, 1);
-            localStorage.setItem("videos", JSON.stringify(videos));
-            displayVideos();
+        function updateUI() {
+            const welcomeMessage = document.getElementById('welcome-message');
+            const signUpButton = document.querySelector('.sign-up');
+            const logInButton = document.querySelector('.log-in');
+            const signOutButton = document.querySelector('.sign-out');
+            const makeVideoButton = document.querySelector('.make-video');
+            const manageVideosButton = document.querySelector('.manage-videos');
+            const customizeChannelButton = document.querySelector('.customize-channel');
+            const viewChannelButton = document.querySelector('.view-channel');
+            const manageVideosSection = document.getElementById('manage-videos-section');
+
+            if (currentUser) {
+                welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
+                signUpButton.style.display = 'none';
+                logInButton.style.display = 'none';
+                signOutButton.style.display = 'inline-block';
+                makeVideoButton.style.display = 'inline-block';
+                manageVideosButton.style.display = 'inline-block';
+                customizeChannelButton.style.display = 'inline-block';
+                viewChannelButton.style.display = 'inline-block';
+                manageVideosSection.style.display = 'block';
+                renderVideos();
+            } else {
+                welcomeMessage.textContent = '';
+                signUpButton.style.display = 'inline-block';
+                logInButton.style.display = 'inline-block';
+                signOutButton.style.display = 'none';
+                makeVideoButton.style.display = 'none';
+                manageVideosButton.style.display = 'none';
+                customizeChannelButton.style.display = 'none';
+                viewChannelButton.style.display = 'none';
+                manageVideosSection.style.display = 'none';
+            }
         }
 
-        function displayVideos() {
-            const videoList = document.getElementById("video-list");
-            videoList.innerHTML = "";
+        function renderVideos() {
+            const videoList = document.getElementById('video-list');
+            videoList.innerHTML = '';
+            currentUser.videos.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
 
-            videos.forEach((video, index) => {
-                const videoItem = document.createElement("div");
-                videoItem.className = "video-item";
+                const thumbnail = document.createElement('img');
+                thumbnail.src = video.thumbnail;
 
-                videoItem.innerHTML = `
-                    <img src="${video.thumbnail}" alt="Thumbnail">
-                    <h3>${video.title}</h3>
-                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
-                    <button class="stats-btn" onclick="openViewStatsModal(${index})">View Statistics</button>
-                `;
+                const title = document.createElement('h3');
+                title.textContent = video.title;
+
+                const deleteButton = document.createElement('button');
+                deleteButton.className = 'delete-btn';
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteVideo(index);
+
+                const statsButton = document.createElement('button');
+                statsButton.className = 'stats-btn';
+                statsButton.textContent = 'View Stats';
+                statsButton.onclick = () => viewStats(video);
+
+                videoItem.appendChild(thumbnail);
+                videoItem.appendChild(title);
+                videoItem.appendChild(deleteButton);
+                videoItem.appendChild(statsButton);
 
                 videoList.appendChild(videoItem);
             });
+        }
 
-            document.getElementById("manage-videos-section").style.display = "block";
+        function deleteVideo(index) {
+            currentUser.videos.splice(index, 1);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            renderVideos();
+        }
+
+        function viewStats(video) {
+            const statsModal = document.getElementById('viewStatsModal');
+            document.getElementById('stats-thumbnail').src = video.thumbnail;
+            document.getElementById('stats-title').textContent = video.title;
+            document.getElementById('stats-description').textContent = video.description;
+            const statsData = document.getElementById('stats-data');
+            statsData.innerHTML = '';
+
+            for (const [key, value] of Object.entries(video.stats)) {
+                const statElement = document.createElement('p');
+                statElement.textContent = `${key}: ${value}`;
+                statsData.appendChild(statElement);
+            }
+
+            statsModal.style.display = 'block';
+        }
+
+        function generateRandomStats() {
+            return {
+                views: Math.floor(Math.random() * 10000),
+                likes: Math.floor(Math.random() * 1000),
+                dislikes: Math.floor(Math.random() * 500),
+                comments: Math.floor(Math.random() * 200)
+            };
         }
 
         function openManageVideos() {
-            displayVideos();
-            document.getElementById("manage-videos-section").style.display = "block";
+            const manageVideosSection = document.getElementById('manage-videos-section');
+            manageVideosSection.style.display = 'block';
         }
 
-        function startVideoSimulation(video) {
-            function updateStats() {
-                video.impressions += Math.floor(Math.random() * (100 - 15 + 1)) + 15;
-                video.views += Math.floor(video.impressions * video.ctr);
+        function customizeChannel() {
+            const channelName = document.getElementById('channelName').value;
+            const channelDescription = document.getElementById('channelDescription').value;
 
-                if (document.getElementById("viewStatsModal").style.display === "block") {
-                    document.getElementById("stats-views").textContent = `Views: ${video.views} (LIVE)`;
-                    document.getElementById("stats-impressions").textContent = `Impressions: ${video.impressions} (LIVE)`;
-                }
+            currentUser.channelName = channelName;
+            currentUser.channelDescription = channelDescription;
+
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUI();
+            closeCustomizeChannelModal();
+        }
+
+        function viewChannel() {
+            const channelName = currentUser.channelName;
+            const channelDescription = currentUser.channelDescription;
+
+            window.location.href = `channel_page.html?channel=${encodeURIComponent(channelName)}&description=${encodeURIComponent(channelDescription)}`;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser) {
+                currentUser = storedUser;
             }
-
-            setInterval(updateStats, 1000);
-        }
-
-
-        window.onload = () => {
-            const storedVideos = localStorage.getItem("videos");
-            if (storedVideos) {
-                videos = JSON.parse(storedVideos);
-            }
-            checkAuth();
-        }
+            updateUI();
+        });
     </script>
 </body>
 </html>
