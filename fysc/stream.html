@@ -3,38 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="files/odometer-theme-default.css">
-    <script src="files/odometer.js"></script>
-    <title>FYSC - Top 50</title>
+    <title>Display Channel Info</title>
     <style>
         body {
+            font-family: Arial, sans-serif;
             background-color: #333;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
         }
-        .channel-box {
-            background-color: gray;
+
+        .container {
+            text-align: center;
+            background-color: #222;
+            padding: 20px;
             border-radius: 10px;
-            width: 256px;
-            height: 84px;
-            padding: 10px 10px 10px 10px;
         }
-        .usrName {
-            font-family: Arial, Helvetica, sans-serif;
-            font-size: 23px;
+
+        .container h1 {
+            color: #00f;
+        }
+
+        .container p {
+            color: #ddd;
         }
     </style>
-    <div class="channel-box" id="channel1">
-        <img src="default-avatar.png" width="74px" height="74px" class="usrPfp">
-        <h2 class="usrName">Channel Name</h2>
-        <div id="odometer">0</div>
+</head>
+<body>
+    <div class="container">
+        <h1 id="channelName">Channel Name</h1>
+        <p id="channelDescription">Channel Description</p>
     </div>
-    <script>
-        const odometerSetup = document.getElementById("odometer")
-        const main = new Odometer({
-            el: odometer,
-        })
 
-        main.update(Math.floor(Math.random() * 36))
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser) {
+                const channelName = storedUser.channelName || 'No Channel Name Set';
+                const channelDescription = storedUser.channelDescription || 'No Channel Description Set';
+                document.getElementById('channelName').textContent = channelName;
+                document.getElementById('channelDescription').textContent = channelDescription;
+            } else {
+                document.getElementById('channelName').textContent = 'No Channel Name Set';
+                document.getElementById('channelDescription').textContent = 'No Channel Description Set';
+            }
+        });
     </script>
 </body>
-</head>
 </html>
