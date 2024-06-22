@@ -3,54 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Display Channel Info</title>
+    <title>FYSC Channel Page</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
             background-color: #333;
             color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-        }
-
-        .container {
+            padding: 10px 0;
             text-align: center;
-            background-color: #222;
+        }
+        .logo img {
+            vertical-align: middle;
+        }
+        main {
             padding: 20px;
-            border-radius: 10px;
         }
-
-        .container h1 {
-            color: #00f;
+        .section {
+            background-color: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
-        .container p {
-            color: #ddd;
+        .channel-info {
+            background-color: #f4f4f4;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .channel-info h2 {
+            margin-top: 0;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1 id="channelName">Channel Name</h1>
-        <p id="channelDescription">Channel Description</p>
-    </div>
+    <header>
+        <div class="logo">
+            <img src="fysc.png" width="178px" height="38px">
+        </div>
+    </header>
+    <main>
+        <div class="section">
+            <div class="channel-info">
+                <h2 id="channel-name"></h2>
+                <p id="channel-description"></p>
+            </div>
+            <h2>Your Published Videos</h2>
+            <div id="published-video-list"></div>
+        </div>
+    </main>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
+        let currentUser = null;
+
+        function updateUI() {
+            const channelName = document.getElementById('channel-name');
+            const channelDescription = document.getElementById('channel-description');
+            const publishedVideoList = document.getElementById('published-video-list');
+
+            if (currentUser) {
+                channelName.textContent = currentUser.channelName;
+                channelDescription.textContent = currentUser.channelDescription;
+                displayPublishedVideos();
+            }
+        }
+
+        function displayPublishedVideos() {
+            const publishedVideoList = document.getElementById('published-video-list');
+            publishedVideoList.innerHTML = '';
+
+            currentUser.videos.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <h3>${video.title}</h3>
+                    <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
+                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+                `;
+                publishedVideoList.appendChild(videoItem);
+            });
+        }
+
+        function viewStats(videoIndex) {
+            const video = currentUser.videos[videoIndex];
+            const statsModal = document.getElementById('viewStatsModal');
+            const statsThumbnail = document.getElementById('stats-thumbnail');
+            const statsTitle = document.getElementById('stats-title');
+            const statsDescription = document.getElementById('stats-description');
+            const statsData = document.getElementById('stats-data');
+
+            statsThumbnail.src = video.thumbnail;
+            statsTitle.textContent = video.title;
+            statsDescription.textContent = video.description;
+            statsData.innerHTML = `
+                <p>Views: ${video.stats.views}</p>
+                <p>Likes: ${video.stats.likes}</p>
+                <p>Comments: ${video.stats.comments}</p>
+                <p>Shares: ${video.stats.shares}</p>
+            `;
+
+            statsModal.style.display = 'block';
+        }
+
+        function deleteVideo(videoIndex) {
+            currentUser.videos.splice(videoIndex, 1);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            displayPublishedVideos(); // Refresh the video list after deletion
+        }
+
+        window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
-                const channelName = storedUser.channelName || 'No Channel Name Set';
-                const channelDescription = storedUser.channelDescription || 'No Channel Description Set';
-                document.getElementById('channelName').textContent = channelName;
-                document.getElementById('channelDescription').textContent = channelDescription;
-            } else {
-                document.getElementById('channelName').textContent = 'No Channel Name Set';
-                document.getElementById('channelDescription').textContent = 'No Channel Description Set';
+                currentUser = storedUser;
             }
-        });
+            updateUI();
+        };
     </script>
 </body>
 </html>
