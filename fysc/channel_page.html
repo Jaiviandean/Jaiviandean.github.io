@@ -90,7 +90,6 @@
     <script>
         let currentUser = null;
         let currentSubscribers = 0;
-        let subscriberUpdateInterval;
 
         function updateUI() {
             const channelName = document.getElementById('channel-name');
@@ -101,7 +100,7 @@
             if (currentUser) {
                 channelName.textContent = currentUser.channelName;
                 channelDescription.textContent = currentUser.channelDescription;
-                subscriberCount.textContent = formatNumber(currentSubscribers);
+                subscriberCount.textContent = currentSubscribers;
                 displayPublishedVideos();
             }
         }
@@ -122,40 +121,33 @@
                 publishedVideoList.appendChild(videoItem);
             });
 
-            // Start subscriber growth based on video views
-            startSubscriberGrowth();
+            // Update subscriber count based on videos count
+            updateSubscriberCount();
         }
 
-        function startSubscriberGrowth() {
-            if (subscriberUpdateInterval) {
-                clearInterval(subscriberUpdateInterval);
+        function updateSubscriberCount() {
+            const videosCount = currentUser.videos.length;
+            const newSubscribers = calculateNewSubscribers(videosCount);
+
+            if (newSubscribers > 0) {
+                currentSubscribers += newSubscribers;
+                document.getElementById('subscriber-count').textContent = currentSubscribers;
+            }
+        }
+
+        function calculateNewSubscribers(videosCount) {
+            // Determine how many subscribers to add based on the videos count
+            let baseIncrement = 1;
+            let count = 0;
+
+            for (let i = 1; i <= videosCount; i++) {
+                if ((i - 1) % 10 === 0 && i > 1) {
+                    baseIncrement++;
+                }
+                count += baseIncrement;
             }
 
-            subscriberUpdateInterval = setInterval(() => {
-                let newSubscribers = 0;
-
-                currentUser.videos.forEach(video => {
-                    const views = video.stats.views;
-                    // Calculate subscribers based on views
-                    if (views >= 1000) {
-                        newSubscribers += Math.floor(views / 1000);
-                    }
-                });
-
-                if (newSubscribers > 0) {
-                    currentSubscribers += newSubscribers;
-                    document.getElementById('subscriber-count').textContent = formatNumber(currentSubscribers);
-                }
-            }, 10000); // Update every 10 seconds
-
-            // Stop updating after 1 minute (60000 milliseconds)
-            setTimeout(() => {
-                clearInterval(subscriberUpdateInterval);
-            }, 60000);
-        }
-
-        function formatNumber(number) {
-            return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            return count;
         }
 
         function viewStats(videoIndex) {
@@ -183,13 +175,14 @@
             currentUser.videos.splice(videoIndex, 1);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             displayPublishedVideos(); // Refresh the video list after deletion
-            startSubscriberGrowth(); // Restart subscriber growth after deletion
+            updateSubscriberCount(); // Update subscriber count after deletion
         }
 
         window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
                 currentUser = storedUser;
+                currentSubscribers = calculateNewSubscribers(currentUser.videos.length);
             }
             updateUI();
         };
