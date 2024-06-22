@@ -47,6 +47,16 @@
             border-radius: 4px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
+        .video-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .video-item img {
+            width: 100px;
+            height: auto;
+            margin-right: 20px;
+        }
         .modal {
             display: none;
             position: fixed;
@@ -78,7 +88,7 @@
             text-decoration: none;
             cursor: pointer;
         }
-        .auth-btn, .video-btn, .customize-btn {
+        .auth-btn, .video-btn, .customize-btn, .delete-btn {
             background-color: #333;
             color: white;
             border: none;
@@ -86,7 +96,7 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        .auth-btn:hover, .video-btn:hover, .customize-btn:hover {
+        .auth-btn:hover, .video-btn:hover, .customize-btn:hover, .delete-btn:hover {
             background-color: #555;
         }
     </style>
@@ -125,6 +135,10 @@
         <div class="section" id="manage-videos-section" style="display:none;">
             <h2>Manage Your Videos</h2>
             <div id="video-list"></div>
+        </div>
+        <div class="section" id="published-videos-section" style="display:none;">
+            <h2>Your Published Videos</h2>
+            <div id="published-video-list"></div>
         </div>
         <div class="section">
             <button onclick="window.location.href='/fysc/stream.html'">Open Stream</button>
@@ -230,7 +244,12 @@
             const retypePassword = document.getElementById('signUpRetypePassword').value;
 
             if (password === retypePassword) {
-                currentUser = { username, password, videos: [], channelName: username, channelDescription: '', subscribers: 0 };
+                currentUser = {
+                    username: username,
+                    password: password,
+                    videos: [],
+                    subscribers: 0 // Initialize subscriber count
+                };
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 updateUI();
                 closeSignUpModal();
@@ -292,6 +311,12 @@
             }
         }
 
+        function deleteVideo(videoIndex) {
+            currentUser.videos.splice(videoIndex, 1);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            openManageVideos(); // Refresh the video list after deletion
+        }
+
         function simulateSubscriberIncrease() {
             currentUser.subscribers++;
             updateSubscriberCount();
@@ -320,7 +345,7 @@
 
         function viewChannel() {
             if (currentUser) {
-                window.location.href = '/fysc/stream.html';
+                window.location.href = 'channel_page.html';
             } else {
                 alert('Please log in to view your channel.');
             }
@@ -335,6 +360,8 @@
             const manageVideosButton = document.querySelector('.manage-videos');
             const customizeChannelButton = document.querySelector('.customize-channel');
             const viewChannelButton = document.querySelector('.view-channel');
+            const manageVideosSection = document.getElementById('manage-videos-section');
+            const publishedVideosSection = document.getElementById('published-videos-section');
 
             if (currentUser) {
                 welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
@@ -345,6 +372,9 @@
                 manageVideosButton.style.display = 'inline-block';
                 customizeChannelButton.style.display = 'inline-block';
                 viewChannelButton.style.display = 'inline-block';
+                manageVideosSection.style.display = 'block';
+                publishedVideosSection.style.display = 'block';
+                displayPublishedVideos();
             } else {
                 welcomeMessage.textContent = '';
                 signUpButton.style.display = 'inline-block';
@@ -354,6 +384,8 @@
                 manageVideosButton.style.display = 'none';
                 customizeChannelButton.style.display = 'none';
                 viewChannelButton.style.display = 'none';
+                manageVideosSection.style.display = 'none';
+                publishedVideosSection.style.display = 'none';
             }
         }
 
@@ -368,12 +400,33 @@
                 videoItem.innerHTML = `
                     <img src="${video.thumbnail}" alt="Thumbnail">
                     <h3>${video.title}</h3>
-                    <button onclick="viewStats(${index})">View Stats</button>
+                    <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
+                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
                 `;
                 videoList.appendChild(videoItem);
             });
 
             manageVideosSection.style.display = 'block';
+        }
+
+        function displayPublishedVideos() {
+            const publishedVideosSection = document.getElementById('published-videos-section');
+            const publishedVideoList = document.getElementById('published-video-list');
+            publishedVideoList.innerHTML = '';
+
+            currentUser.videos.forEach((video, index) => {
+                const videoItem = document.createElement('div');
+                videoItem.classList.add('video-item');
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <h3>${video.title}</h3>
+                    <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
+                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+                `;
+                publishedVideoList.appendChild(videoItem);
+            });
+
+            publishedVideosSection.style.display = 'block';
         }
 
         function viewStats(videoIndex) {
