@@ -6,86 +6,47 @@
     <title>FYSC</title>
     <style>
         body {
-            margin: 0;
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        header {
             background-color: #333;
             color: white;
+            padding: 10px 0;
+            text-align: center;
         }
-
-        header {
+        .logo img {
+            vertical-align: middle;
+        }
+        .auth-buttons {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background-color: #222;
-            padding: 10px 20px;
+            justify-content: center;
+            margin-top: 10px;
         }
-
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00f;
-        }
-
         .auth-buttons button {
-            margin-left: 10px;
-            padding: 10px 20px;
+            background-color: #333;
+            color: white;
             border: none;
-            border-radius: 5px;
+            padding: 10px 20px;
+            margin: 0 5px;
             cursor: pointer;
-            font-size: 16px;
+            border-radius: 4px;
         }
-
-        .auth-buttons .sign-up {
-            background-color: grey;
-            color: white;
+        .auth-buttons button:hover {
+            background-color: #555;
         }
-
-        .auth-buttons .log-in {
-            background-color: green;
-            color: white;
-        }
-
-        .auth-buttons .sign-out,
-        .auth-buttons .make-video,
-        .auth-buttons .manage-videos,
-        .auth-buttons .customize-channel,
-        .auth-buttons .view-channel {
-            display: none;
-            background-color: red;
-            color: white;
-        }
-
-        .auth-buttons .make-video {
-            background-color: blue;
-        }
-
-        .auth-buttons .manage-videos {
-            background-color: orange;
-        }
-
-        .auth-buttons .customize-channel {
-            background-color: purple;
-        }
-
-        .auth-buttons .view-channel {
-            background-color: teal;
-        }
-
         main {
             padding: 20px;
         }
-
         .section {
-            margin-bottom: 20px;
-        }
-
-        .section h2 {
-            margin: 0;
+            background-color: white;
             padding: 20px;
-            background-color: #444;
-            border-radius: 5px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
-
         .modal {
             display: none;
             position: fixed;
@@ -95,106 +56,38 @@
             width: 100%;
             height: 100%;
             overflow: auto;
-            background-color: rgba(0,0,0,0.4);
+            background-color: rgba(0, 0, 0, 0.4);
             padding-top: 60px;
         }
-
-        .modal-content {
-            background-color: #333;
+        .modal-content, .stats-modal-content {
+            background-color: white;
             margin: 5% auto;
             padding: 20px;
             border: 1px solid #888;
             width: 80%;
-            max-width: 400px;
-            border-radius: 10px;
-            text-align: center;
+            border-radius: 4px;
         }
-
-        .modal-content input,
-        .modal-content textarea {
-            width: calc(100% - 40px);
-            padding: 10px;
-            margin: 10px 0;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .modal-content .auth-btn,
-        .modal-content .video-btn,
-        .modal-content .customize-btn {
-            background-color: green;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
         .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
-
-        .close:hover,
-        .close:focus {
-            color: #000;
+        .close:hover, .close:focus {
+            color: black;
             text-decoration: none;
             cursor: pointer;
         }
-
-        .video-item {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .video-item img {
-            width: 120px;
-            height: 90px;
-            margin-right: 20px;
-        }
-
-        .video-item h3 {
-            margin: 0;
-            flex-grow: 1;
-        }
-
-        .video-item button {
-            margin-left: 10px;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-
-        .video-item .delete-btn {
-            background-color: red;
-            color: white;
-        }
-
-        .video-item .stats-btn {
-            background-color: blue;
-            color: white;
-        }
-
-        .stats-modal-content {
+        .auth-btn, .video-btn, .customize-btn {
             background-color: #333;
-            margin: 5% auto;
-            padding: 20px;
-            border: 1px solid #888;
-            width: 80%;
-            max-width: 600px;
-            border-radius: 10px;
-            text-align: center;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 4px;
         }
-
-        .stats-modal-content h3,
-        .stats-modal-content p {
-            margin: 0;
-            margin-bottom: 20px;
+        .auth-btn:hover, .video-btn:hover, .customize-btn:hover {
+            background-color: #555;
         }
     </style>
 </head>
@@ -356,7 +249,7 @@
                 updateUI();
                 closeLogInModal();
             } else {
-                alert('Invalid login credentials.');
+                alert('Invalid username or password.');
             }
         }
 
@@ -364,6 +257,14 @@
             currentUser = null;
             localStorage.removeItem('currentUser');
             updateUI();
+        }
+
+        function openMakeVideoModal() {
+            if (currentUser) {
+                document.getElementById('makeVideoModal').style.display = 'block';
+            } else {
+                alert('Please log in to make a video.');
+            }
         }
 
         function createVideo() {
@@ -374,31 +275,54 @@
             if (title && description && thumbnail) {
                 const reader = new FileReader();
                 reader.onload = function (e) {
-                    const video = { title, description, thumbnail: e.target.result, stats: generateRandomStats() };
-                    currentUser.videos.push(video);
+                    const newVideo = {
+                        title,
+                        description,
+                        thumbnail: e.target.result,
+                        stats: generateRandomStats()
+                    };
+                    currentUser.videos.push(newVideo);
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    simulateSubscriberIncrease(); // Simulate subscriber increase
+                    updateUI();
                     closeMakeVideoModal();
                 };
                 reader.readAsDataURL(thumbnail);
             } else {
-                alert('Please fill in all fields and select a thumbnail.');
+                alert('Please fill in all fields.');
             }
         }
 
         function simulateSubscriberIncrease() {
-            const increase = Math.floor(Math.random() * 10) + 1; // Random increase between 1 to 10
-            currentUser.subscribers += increase;
+            currentUser.subscribers++;
+            updateSubscriberCount();
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateSubscriberCount(); // Update subscriber count in UI
         }
 
         function updateSubscriberCount() {
-            const viewChannelButton = document.querySelector('.view-channel');
-            if (currentUser) {
-                viewChannelButton.textContent = `View Channel (${currentUser.subscribers} subscribers)`;
+            subscriberCount = currentUser.subscribers;
+            localStorage.setItem('subscriberCount', subscriberCount);
+        }
+
+        function customizeChannel() {
+            const channelName = document.getElementById('channelName').value;
+            const channelDescription = document.getElementById('channelDescription').value;
+
+            if (channelName && channelDescription) {
+                currentUser.channelName = channelName;
+                currentUser.channelDescription = channelDescription;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUI();
+                closeCustomizeChannelModal();
             } else {
-                viewChannelButton.textContent = `View Channel`;
+                alert('Please fill in all fields.');
+            }
+        }
+
+        function viewChannel() {
+            if (currentUser) {
+                window.location.href = '/fysc/stream.html';
+            } else {
+                alert('Please log in to view your channel.');
             }
         }
 
@@ -411,7 +335,6 @@
             const manageVideosButton = document.querySelector('.manage-videos');
             const customizeChannelButton = document.querySelector('.customize-channel');
             const viewChannelButton = document.querySelector('.view-channel');
-            const manageVideosSection = document.getElementById('manage-videos-section');
 
             if (currentUser) {
                 welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
@@ -422,9 +345,6 @@
                 manageVideosButton.style.display = 'inline-block';
                 customizeChannelButton.style.display = 'inline-block';
                 viewChannelButton.style.display = 'inline-block';
-                manageVideosSection.style.display = 'block';
-                renderVideos();
-                updateSubscriberCount();
             } else {
                 welcomeMessage.textContent = '';
                 signUpButton.style.display = 'inline-block';
@@ -434,106 +354,65 @@
                 manageVideosButton.style.display = 'none';
                 customizeChannelButton.style.display = 'none';
                 viewChannelButton.style.display = 'none';
-                manageVideosSection.style.display = 'none';
             }
         }
 
-        function renderVideos() {
+        function openManageVideos() {
+            const manageVideosSection = document.getElementById('manage-videos-section');
             const videoList = document.getElementById('video-list');
             videoList.innerHTML = '';
+
             currentUser.videos.forEach((video, index) => {
                 const videoItem = document.createElement('div');
-                videoItem.className = 'video-item';
-
-                const thumbnail = document.createElement('img');
-                thumbnail.src = video.thumbnail;
-
-                const title = document.createElement('h3');
-                title.textContent = video.title;
-
-                const deleteButton = document.createElement('button');
-                deleteButton.className = 'delete-btn';
-                deleteButton.textContent = 'Delete';
-                deleteButton.onclick = () => deleteVideo(index);
-
-                const statsButton = document.createElement('button');
-                statsButton.className = 'stats-btn';
-                statsButton.textContent = 'View Stats';
-                statsButton.onclick = () => viewStats(video);
-
-                videoItem.appendChild(thumbnail);
-                videoItem.appendChild(title);
-                videoItem.appendChild(deleteButton);
-                videoItem.appendChild(statsButton);
-
+                videoItem.classList.add('video-item');
+                videoItem.innerHTML = `
+                    <img src="${video.thumbnail}" alt="Thumbnail">
+                    <h3>${video.title}</h3>
+                    <button onclick="viewStats(${index})">View Stats</button>
+                `;
                 videoList.appendChild(videoItem);
             });
+
+            manageVideosSection.style.display = 'block';
         }
 
-        function deleteVideo(index) {
-            currentUser.videos.splice(index, 1);
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            renderVideos();
-        }
-
-        function viewStats(video) {
+        function viewStats(videoIndex) {
+            const video = currentUser.videos[videoIndex];
             const statsModal = document.getElementById('viewStatsModal');
-            document.getElementById('stats-thumbnail').src = video.thumbnail;
-            document.getElementById('stats-title').textContent = video.title;
-            document.getElementById('stats-description').textContent = video.description;
+            const statsThumbnail = document.getElementById('stats-thumbnail');
+            const statsTitle = document.getElementById('stats-title');
+            const statsDescription = document.getElementById('stats-description');
             const statsData = document.getElementById('stats-data');
-            statsData.innerHTML = '';
 
-            for (const [key, value] of Object.entries(video.stats)) {
-                const statElement = document.createElement('p');
-                statElement.textContent = `${key}: ${value}`;
-                statsData.appendChild(statElement);
-            }
+            statsThumbnail.src = video.thumbnail;
+            statsTitle.textContent = video.title;
+            statsDescription.textContent = video.description;
+            statsData.innerHTML = `
+                <p>Views: ${video.stats.views}</p>
+                <p>Likes: ${video.stats.likes}</p>
+                <p>Comments: ${video.stats.comments}</p>
+                <p>Shares: ${video.stats.shares}</p>
+            `;
 
             statsModal.style.display = 'block';
         }
 
         function generateRandomStats() {
             return {
-                views: Math.floor(Math.random() * 10000),
-                likes: Math.floor(Math.random() * 1000),
-                dislikes: Math.floor(Math.random() * 500),
-                comments: Math.floor(Math.random() * 200)
+                views: Math.floor(Math.random() * 1000),
+                likes: Math.floor(Math.random() * 100),
+                comments: Math.floor(Math.random() * 50),
+                shares: Math.floor(Math.random() * 30)
             };
         }
 
-        function openManageVideos() {
-            const manageVideosSection = document.getElementById('manage-videos-section');
-            manageVideosSection.style.display = 'block';
-        }
-
-        function customizeChannel() {
-            const channelName = document.getElementById('channelName').value;
-            const channelDescription = document.getElementById('channelDescription').value;
-
-            currentUser.channelName = channelName;
-            currentUser.channelDescription = channelDescription;
-
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            updateUI();
-            closeCustomizeChannelModal();
-        }
-
-        function viewChannel() {
-            const channelName = currentUser.channelName;
-            const channelDescription = currentUser.channelDescription;
-
-            window.location.href = `channel_page.html?channel=${encodeURIComponent(channelName)}&description=${encodeURIComponent(channelDescription)}`;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
+        window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
                 currentUser = storedUser;
             }
             updateUI();
-        });
+        };
     </script>
 </body>
 </html>
-
