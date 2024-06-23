@@ -178,6 +178,11 @@
             updateSubscriberCount(); // Update subscriber count after deletion
         }
 
+        function sendSubscriberCount() {
+            const subscriberCount = document.getElementById('subscriber-count').textContent;
+            localStorage.setItem('subscriberCount', subscriberCount);
+        }
+
         window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
@@ -185,6 +190,9 @@
                 currentSubscribers = calculateNewSubscribers(currentUser.videos.length);
             }
             updateUI();
+
+            // Send subscriber count every 2 seconds
+            setInterval(sendSubscriberCount, 2000);
         };
     </script>
 </body>
