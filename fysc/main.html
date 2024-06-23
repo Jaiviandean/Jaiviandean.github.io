@@ -200,7 +200,6 @@
 
     <script>
         let currentUser = null;
-        let subscriberCount = 0; // Initialize subscriber count
 
         function openSignUpModal() {
             document.getElementById('signUpModal').style.display = 'block';
@@ -242,230 +241,243 @@
             const username = document.getElementById('signUpUsername').value;
             const password = document.getElementById('signUpPassword').value;
             const retypePassword = document.getElementById('signUpRetypePassword').value;
-
-            if (password === retypePassword) {
-                currentUser = {
-                    username: username,
-                    password: password,
-                    videos: [],
-                    subscribers: 0 // Initialize subscriber count
-                };
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateUI();
-                closeSignUpModal();
-            } else {
-                alert('Passwords do not match.');
-            }
-        }
-
-        function logIn() {
-            const username = document.getElementById('logInUsername').value;
-            const password = document.getElementById('logInPassword').value;
-            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-
-            if (storedUser && storedUser.username === username && storedUser.password === password) {
-                currentUser = storedUser;
-                updateUI();
-                closeLogInModal();
-            } else {
-                alert('Invalid username or password.');
-            }
-        }
-
-        function signOut() {
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            updateUI();
-        }
-
-        function openMakeVideoModal() {
-            if (currentUser) {
-                document.getElementById('makeVideoModal').style.display = 'block';
-            } else {
-                alert('Please log in to make a video.');
-            }
-        }
-
-        function createVideo() {
-            const title = document.getElementById('videoTitle').value;
-            const description = document.getElementById('videoDescription').value;
-            const thumbnail = document.getElementById('videoThumbnail').files[0];
-
-            if (title && description && thumbnail) {
-                const reader = new FileReader();
-                reader.onload = function (e) {
-                    const newVideo = {
-                        title,
-                        description,
-                        thumbnail: e.target.result,
-                        stats: generateRandomStats()
-                    };
-                    currentUser.videos.push(newVideo);
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    updateUI();
-                    closeMakeVideoModal();
-                };
-                reader.readAsDataURL(thumbnail);
-            } else {
-                alert('Please fill in all fields.');
-            }
-        }
-
-        function deleteVideo(videoIndex) {
-            currentUser.videos.splice(videoIndex, 1);
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            openManageVideos(); // Refresh the video list after deletion
-        }
-
-        function simulateSubscriberIncrease() {
-            currentUser.subscribers++;
-            updateSubscriberCount();
-            localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        }
-
-        function updateSubscriberCount() {
-            subscriberCount = currentUser.subscribers;
-            localStorage.setItem('subscriberCount', subscriberCount);
-        }
-
-        function customizeChannel() {
-            const channelName = document.getElementById('channelName').value;
-            const channelDescription = document.getElementById('channelDescription').value;
-
-            if (channelName && channelDescription) {
-                currentUser.channelName = channelName;
-                currentUser.channelDescription = channelDescription;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                updateUI();
-                closeCustomizeChannelModal();
-            } else {
-                alert('Please fill in all fields.');
-            }
-        }
-
-        function viewChannel() {
-            if (currentUser) {
-                window.location.href = 'channel_page.html';
-            } else {
-                alert('Please log in to view your channel.');
-            }
-        }
-
-        function updateUI() {
-            const welcomeMessage = document.getElementById('welcome-message');
-            const signUpButton = document.querySelector('.sign-up');
-            const logInButton = document.querySelector('.log-in');
-            const signOutButton = document.querySelector('.sign-out');
-            const makeVideoButton = document.querySelector('.make-video');
-            const manageVideosButton = document.querySelector('.manage-videos');
-            const customizeChannelButton = document.querySelector('.customize-channel');
-            const viewChannelButton = document.querySelector('.view-channel');
-            const manageVideosSection = document.getElementById('manage-videos-section');
-            const publishedVideosSection = document.getElementById('published-videos-section');
-
-            if (currentUser) {
-                welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
-                signUpButton.style.display = 'none';
-                logInButton.style.display = 'none';
-                signOutButton.style.display = 'inline-block';
-                makeVideoButton.style.display = 'inline-block';
-                manageVideosButton.style.display = 'inline-block';
-                customizeChannelButton.style.display = 'inline-block';
-                viewChannelButton.style.display = 'inline-block';
-                manageVideosSection.style.display = 'block';
-                publishedVideosSection.style.display = 'block';
-                displayPublishedVideos();
-            } else {
-                welcomeMessage.textContent = '';
-                signUpButton.style.display = 'inline-block';
-                logInButton.style.display = 'inline-block';
-                signOutButton.style.display = 'none';
-                makeVideoButton.style.display = 'none';
-                manageVideosButton.style.display = 'none';
-                customizeChannelButton.style.display = 'none';
-                viewChannelButton.style.display = 'none';
-                manageVideosSection.style.display = 'none';
-                publishedVideosSection.style.display = 'none';
-            }
-        }
-
-        function openManageVideos() {
-            const manageVideosSection = document.getElementById('manage-videos-section');
-            const videoList = document.getElementById('video-list');
-            videoList.innerHTML = '';
-
-            currentUser.videos.forEach((video, index) => {
-                const videoItem = document.createElement('div');
-                videoItem.classList.add('video-item');
-                videoItem.innerHTML = `
-                    <img src="${video.thumbnail}" alt="Thumbnail">
-                    <h3>${video.title}</h3>
-                    <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
-                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
-                `;
-                videoList.appendChild(videoItem);
-            });
-
-            manageVideosSection.style.display = 'block';
-        }
-
-        function displayPublishedVideos() {
-            const publishedVideosSection = document.getElementById('published-videos-section');
-            const publishedVideoList = document.getElementById('published-video-list');
-            publishedVideoList.innerHTML = '';
-
-            currentUser.videos.forEach((video, index) => {
-                const videoItem = document.createElement('div');
-                videoItem.classList.add('video-item');
-                videoItem.innerHTML = `
-                    <img src="${video.thumbnail}" alt="Thumbnail">
-                    <h3>${video.title}</h3>
-                    <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
-                    <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
-                `;
-                publishedVideoList.appendChild(videoItem);
-            });
-
-            publishedVideosSection.style.display = 'block';
-        }
-
-        function viewStats(videoIndex) {
-            const video = currentUser.videos[videoIndex];
-            const statsModal = document.getElementById('viewStatsModal');
-            const statsThumbnail = document.getElementById('stats-thumbnail');
-            const statsTitle = document.getElementById('stats-title');
-            const statsDescription = document.getElementById('stats-description');
-            const statsData = document.getElementById('stats-data');
-
-            statsThumbnail.src = video.thumbnail;
-            statsTitle.textContent = video.title;
-            statsDescription.textContent = video.description;
-            statsData.innerHTML = `
-                <p>Views: ${video.stats.views}</p>
-                <p>Likes: ${video.stats.likes}</p>
-                <p>Comments: ${video.stats.comments}</p>
-                <p>Shares: ${video.stats.shares}</p>
-            `;
-
-            statsModal.style.display = 'block';
-        }
-
-        function generateRandomStats() {
-            return {
-                views: Math.floor(Math.random() * 1000),
-                likes: Math.floor(Math.random() * 100),
-                comments: Math.floor(Math.random() * 50),
-                shares: Math.floor(Math.random() * 30)
+                    if (password === retypePassword) {
+            currentUser = {
+                username: username,
+                password: password,
+                videos: [],
+                subscribers: 0, // Initialize subscriber count
+                channelName: '',
+                channelDescription: ''
             };
-        }
-
-        window.onload = function () {
-            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (storedUser) {
-                currentUser = storedUser;
-            }
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
             updateUI();
+            closeSignUpModal();
+        } else {
+            alert('Passwords do not match.');
+        }
+    }
+
+    function logIn() {
+        const username = document.getElementById('logInUsername').value;
+        const password = document.getElementById('logInPassword').value;
+        const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+
+        if (storedUser && storedUser.username === username && storedUser.password === password) {
+            currentUser = storedUser;
+            updateUI();
+            closeLogInModal();
+        } else {
+            alert('Invalid username or password.');
+        }
+    }
+
+    function signOut() {
+        currentUser = null;
+        localStorage.removeItem('currentUser');
+        updateUI();
+    }
+
+    function createVideo() {
+        const title = document.getElementById('videoTitle').value;
+        const description = document.getElementById('videoDescription').value;
+        const thumbnail = document.getElementById('videoThumbnail').files[0];
+
+        if (title && description && thumbnail) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const newVideo = {
+                    title,
+                    description,
+                    thumbnail: e.target.result,
+                    stats: generateRandomStats()
+                };
+
+                // Calculate additional views based on likes and subscribers
+                const additionalViews = calculateAdditionalViews(currentUser.videos.length, newVideo.stats.likes, currentUser.subscribers);
+                newVideo.stats.views += additionalViews;
+
+                currentUser.videos.push(newVideo);
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUI();
+                closeMakeVideoModal();
+            };
+            reader.readAsDataURL(thumbnail);
+        } else {
+            alert('Please fill in all fields.');
+        }
+    }
+
+    function deleteVideo(videoIndex) {
+        currentUser.videos.splice(videoIndex, 1);
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        openManageVideos(); // Refresh the video list after deletion
+    }
+
+    function simulateSubscriberIncrease() {
+        currentUser.subscribers++;
+        updateSubscriberCount();
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    }
+
+    function updateSubscriberCount() {
+        subscriberCount = currentUser.subscribers;
+        localStorage.setItem('subscriberCount', subscriberCount);
+    }
+
+    function customizeChannel() {
+        const channelName = document.getElementById('channelName').value;
+        const channelDescription = document.getElementById('channelDescription').value;
+
+        if (channelName && channelDescription) {
+            currentUser.channelName = channelName;
+            currentUser.channelDescription = channelDescription;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            updateUI();
+            closeCustomizeChannelModal();
+        } else {
+            alert('Please fill in all fields.');
+        }
+    }
+
+    function viewChannel() {
+        if (currentUser) {
+            window.location.href = 'channel_page.html';
+        } else {
+            alert('Please log in to view your channel.');
+        }
+    }
+
+    function updateUI() {
+        const welcomeMessage = document.getElementById('welcome-message');
+        const signUpButton = document.querySelector('.sign-up');
+        const logInButton = document.querySelector('.log-in');
+        const signOutButton = document.querySelector('.sign-out');
+        const makeVideoButton = document.querySelector('.make-video');
+        const manageVideosButton = document.querySelector('.manage-videos');
+        const customizeChannelButton = document.querySelector('.customize-channel');
+        const viewChannelButton = document.querySelector('.view-channel');
+        const manageVideosSection = document.getElementById('manage-videos-section');
+        const publishedVideosSection = document.getElementById('published-videos-section');
+
+        if (currentUser) {
+            welcomeMessage.textContent = `Welcome, ${currentUser.username}`;
+            signUpButton.style.display = 'none';
+            logInButton.style.display = 'none';
+            signOutButton.style.display = 'inline-block';
+            makeVideoButton.style.display = 'inline-block';
+            manageVideosButton.style.display = 'inline-block';
+            customizeChannelButton.style.display = 'inline-block';
+            viewChannelButton.style.display = 'inline-block';
+            manageVideosSection.style.display = 'block';
+            publishedVideosSection.style.display = 'block';
+            displayPublishedVideos();
+        } else {
+            welcomeMessage.textContent = '';
+            signUpButton.style.display = 'inline-block';
+            logInButton.style.display = 'inline-block';
+            signOutButton.style.display = 'none';
+            makeVideoButton.style.display = 'none';
+            manageVideosButton.style.display = 'none';
+            customizeChannelButton.style.display = 'none';
+            viewChannelButton.style.display = 'none';
+            manageVideosSection.style.display = 'none';
+            publishedVideosSection.style.display = 'none';
+        }
+    }
+
+    function openManageVideos() {
+        const manageVideosSection = document.getElementById('manage-videos-section');
+        const videoList = document.getElementById('video-list');
+        videoList.innerHTML = '';
+
+        currentUser.videos.forEach((video, index) => {
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+            videoItem.innerHTML = `
+                <img src="${video.thumbnail}" alt="Thumbnail">
+                <h3>${video.title}</h3>
+                <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
+                <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+            `;
+            videoList.appendChild(videoItem);
+        });
+
+        manageVideosSection.style.display = 'block';
+    }
+
+    function displayPublishedVideos() {
+        const publishedVideosSection = document.getElementById('published-videos-section');
+        const publishedVideoList = document.getElementById('published-video-list');
+        publishedVideoList.innerHTML = '';
+
+        currentUser.videos.forEach((video, index) => {
+            const videoItem = document.createElement('div');
+            videoItem.classList.add('video-item');
+            videoItem.innerHTML = `
+                <img src="${video.thumbnail}" alt="Thumbnail">
+                <h3>${video.title}</h3>
+                <button class="video-btn" onclick="viewStats(${index})">View Stats</button>
+                <button class="delete-btn" onclick="deleteVideo(${index})">Delete</button>
+            `;
+            publishedVideoList.appendChild(videoItem);
+        });
+
+        publishedVideosSection.style.display = 'block';
+    }
+
+    function viewStats(videoIndex) {
+        const video = currentUser.videos[videoIndex];
+        const statsModal = document.getElementById('viewStatsModal');
+        const statsThumbnail = document.getElementById('stats-thumbnail');
+        const statsTitle = document.getElementById('stats-title');
+        const statsDescription = document.getElementById('stats-description');
+        const statsData = document.getElementById('stats-data');
+
+        statsThumbnail.src = video.thumbnail;
+        statsTitle.textContent = video.title;
+        statsDescription.textContent = video.description;
+        statsData.innerHTML = `
+            <p>Views: ${video.stats.views}</p>
+            <p>Likes: ${video.stats.likes}</p>
+            <p>Comments: ${video.stats.comments}</p>
+            <p>Shares: ${video.stats.shares}</p>
+        `;
+
+        statsModal.style.display = 'block';
+    }
+
+    function generateRandomStats() {
+        return {
+            views: Math.floor(Math.random() * 1000),
+            likes: Math.floor(Math.random() * 100),
+            comments: Math.floor(Math.random() * 50),
+            shares: Math.floor(Math.random() * 30)
         };
-    </script>
-</body>
-</html>
+    }
+
+    // Function to calculate additional views based on likes and subscribers
+    function calculateAdditionalViews(videoCount, likes, subscribers) {
+        const likesToViewsRatio = 25; // 1 like = 25 additional views
+        const subscribersToViewsRatio = 100; // 1 subscriber = 100 additional views
+
+        const additionalViewsFromLikes = likes * likesToViewsRatio;
+        const additionalViewsFromSubscribers = subscribers * subscribersToViewsRatio;
+
+        // Additional views are scaled based on the number of published videos
+        const scaleFactor = 1 / Math.sqrt(videoCount + 1);
+
+        const totalAdditionalViews = Math.round((additionalViewsFromLikes + additionalViewsFromSubscribers) * scaleFactor);
+
+        return totalAdditionalViews;
+    }
+
+    window.onload = function () {
+        const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+        if (storedUser) {
+            currentUser = storedUser;
+        }
+        updateUI();
+    };
+</script>
+
