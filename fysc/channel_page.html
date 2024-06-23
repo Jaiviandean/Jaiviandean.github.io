@@ -83,7 +83,7 @@
                 <p id="channel-description"></p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
                 <button class="btn" onclick="resetSubscriberCount()">Reset Subscriber Count</button>
-                <button class="btn" onclick="startAutoRefresh()">Start Auto Refresh</button>
+                <button class="btn" onclick="publishVideo()">Publish Video</button>
             </div>
             <h2>Your Published Videos</h2>
             <div id="published-video-list"></div>
@@ -93,7 +93,6 @@
     <script>
         let currentUser = null;
         let currentSubscribers = 0;
-        let refreshIntervalId = null;
 
         function updateUI() {
             const channelName = document.getElementById('channel-name');
@@ -215,16 +214,6 @@
             currentSubscribers = 0;
             localStorage.setItem('subscriberCount', '0');
             document.getElementById('subscriber-count').textContent = '0';
-        }
-
-        function startAutoRefresh() {
-            if (refreshIntervalId) {
-                clearInterval(refreshIntervalId);
-            }
-
-            refreshIntervalId = setInterval(function() {
-                updateUI(); // Update the UI every 2 seconds
-            }, 2000);
         }
 
         // Disable page refresh
