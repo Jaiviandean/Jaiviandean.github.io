@@ -78,7 +78,7 @@
     <main>
         <div class="section">
             <div class="channel-info">
-                <h2 id="channel-name">Channel Name</h2>
+                <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
                 <p id="channel-description"></p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
             </div>
@@ -119,37 +119,39 @@
                     <button class="btn" onclick="deleteVideo(${index})">Delete</button>
                 `;
                 publishedVideoList.appendChild(videoItem);
-
-                // Start boosting subscribers for this video
-                boostSubscribers(video.likes);
             });
 
             // Update subscriber count based on videos count
             updateSubscriberCount();
         }
 
-        function boostSubscribers(likes) {
-            const boostAmount = Math.round(likes / 10); // Boost amount per video
+        function updateSubscriberCount() {
+            const videosCount = currentUser.videos.length;
+            const newSubscribers = calculateNewSubscribers(currentSubscribers);
 
-            let intervalId = setInterval(() => {
-                currentSubscribers += boostAmount;
-                document.getElementById('subscriber-count').textContent = currentSubscribers;
-            }, 5000); // Every 5 seconds
+            currentSubscribers += newSubscribers;
+            document.getElementById('subscriber-count').textContent = currentSubscribers;
 
-            // Store interval ID so it can be cleared if needed
-            intervals.push(intervalId);
+            // Store updated subscriber count in localStorage
+            localStorage.setItem('subscriberCount', currentSubscribers.toString());
         }
 
-        function updateSubscriberCount() {
-            // Calculate total boost from all active videos
-            let totalBoost = 0;
-            currentUser.videos.forEach(video => {
-                totalBoost += Math.round(video.likes / 10);
-            });
-
-            // Update subscriber count based on total boost
-            currentSubscribers += totalBoost;
-            document.getElementById('subscriber-count').textContent = currentSubscribers;
+        function calculateNewSubscribers(currentSubscribers) {
+            if (currentSubscribers >= 100000000) {
+                return 20000;
+            } else if (currentSubscribers >= 1000000) {
+                return 500;
+            } else if (currentSubscribers >= 100000) {
+                return 100;
+            } else if (currentSubscribers >= 10000) {
+                return 20;
+            } else if (currentSubscribers >= 1000) {
+                return 5;
+            } else if (currentSubscribers >= 100) {
+                return 2;
+            } else {
+                return 1; // Default increment
+            }
         }
 
         function viewStats(videoIndex) {
@@ -180,33 +182,17 @@
             updateSubscriberCount(); // Update subscriber count after deletion
         }
 
-        function sendSubscriberCount() {
-            const subscriberCount = document.getElementById('subscriber-count').textContent;
-            localStorage.setItem('subscriberCount', subscriberCount);
-        }
-
-        let intervals = []; // Store intervals for active boosting
-
         window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
                 currentUser = storedUser;
-                currentSubscribers = calculateInitialSubscribers(currentUser.videos);
+                currentSubscribers = parseInt(localStorage.getItem('subscriberCount')) || 0;
             }
             updateUI();
 
-            // Send subscriber count every 2 seconds
-            setInterval(sendSubscriberCount, 2000);
+            // Update subscriber count every 2 seconds
+            setInterval(updateSubscriberCount, 2000);
         };
-
-        // Calculate initial subscribers based on videos likes
-        function calculateInitialSubscribers(videos) {
-            let initialSubscribers = 0;
-            videos.forEach(video => {
-                initialSubscribers += Math.round(video.likes / 10);
-            });
-            return initialSubscribers;
-        }
     </script>
 </body>
 </html>
