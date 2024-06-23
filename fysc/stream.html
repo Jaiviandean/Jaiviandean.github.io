@@ -54,41 +54,34 @@
     <main>
         <div class="channel-info">
             <img src="default-avatar.png" alt="Profile Picture">
-            <h2>Channel Name</h2>
-            <p id="subscriber-count">0</p>
+            <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
+            <p>Subscribers: <span id="subscriber-count">0</span></p>
         </div>
     </main>
 
     <script>
-        function updateSubscriberCount() {
+        function updateChannelInfo() {
+            const channelNameElement = document.getElementById('channel-name');
             const subscriberCountElement = document.getElementById('subscriber-count');
-            const currentCount = parseInt(subscriberCountElement.textContent);
-            const targetCount = parseInt(localStorage.getItem('subscriberCount')) || 0;
-            
-            // Calculate animation steps
-            const steps = 20; // Number of steps for animation
-            const stepDuration = 1000 / steps; // Duration of each step (ms)
-            const increment = Math.ceil((targetCount - currentCount) / steps);
-            
-            let current = currentCount;
-            let step = 0;
-            const animationInterval = setInterval(() => {
-                current += increment;
-                subscriberCountElement.textContent = current;
-                step++;
-                
-                if (step >= steps) {
-                    clearInterval(animationInterval);
-                    subscriberCountElement.textContent = targetCount;
-                }
-            }, stepDuration);
+
+            // Fetch channel name from localStorage of channel_page.html
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser && storedUser.channelName) {
+                channelNameElement.textContent = storedUser.channelName;
+            }
+
+            // Fetch subscriber count from localStorage (as updated by channel_page.html)
+            const subscriberCount = localStorage.getItem('subscriberCount');
+            if (subscriberCount) {
+                subscriberCountElement.textContent = subscriberCount;
+            }
         }
 
         window.onload = function () {
-            updateSubscriberCount();
+            updateChannelInfo();
 
-            // Update subscriber count every 2 seconds
-            setInterval(updateSubscriberCount, 2000);
+            // Update channel info every 2 seconds
+            setInterval(updateChannelInfo, 2000);
         };
     </script>
 </body>
