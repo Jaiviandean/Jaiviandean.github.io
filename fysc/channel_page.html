@@ -133,6 +133,7 @@
             if (newSubscribers > 0) {
                 currentSubscribers += newSubscribers;
                 document.getElementById('subscriber-count').textContent = currentSubscribers;
+                localStorage.setItem('subscriberCount', currentSubscribers); // Save to localStorage
             }
         }
 
@@ -170,16 +171,11 @@
             updateSubscriberCount(); // Update subscriber count after deletion
         }
 
-        function sendSubscriberCount() {
-            const subscriberCount = document.getElementById('subscriber-count').textContent;
-            localStorage.setItem('subscriberCount', subscriberCount);
-        }
-
         window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
                 currentUser = storedUser;
-                currentSubscribers = storedUser.videos.length; // Set initial subscribers based on video count
+                currentSubscribers = parseInt(localStorage.getItem('subscriberCount')) || 0; // Retrieve from localStorage
             }
             updateUI();
 
@@ -187,6 +183,11 @@
             setInterval(updateSubscriberCount, 2000);
             setInterval(sendSubscriberCount, 2000); // Send subscriber count every 2 seconds
         };
+
+        function sendSubscriberCount() {
+            const subscriberCount = document.getElementById('subscriber-count').textContent;
+            localStorage.setItem('subscriberCount', subscriberCount);
+        }
     </script>
 </body>
 </html>
