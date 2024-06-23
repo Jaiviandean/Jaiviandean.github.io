@@ -81,17 +81,16 @@
                 <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
                 <p id="channel-description"></p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
-                <button class="btn" onclick="resetSubscribers()">Reset Subscribers</button>
             </div>
             <h2>Your Published Videos</h2>
             <div id="published-video-list"></div>
+            <button class="btn" onclick="publishVideo()">Publish Video</button>
         </div>
     </main>
 
     <script>
         let currentUser = null;
         let currentSubscribers = 0;
-        let lastUpdateTimestamp = 0; // Track the last update timestamp
 
         function updateUI() {
             const channelName = document.getElementById('channel-name');
@@ -124,41 +123,22 @@
                 publishedVideoList.appendChild(videoItem);
             });
 
-            // Update subscriber count based on videos count and views
+            // Update subscriber count based on videos count
             updateSubscriberCount();
         }
 
         function updateSubscriberCount() {
-            const now = Date.now();
-            const timeDiffInSeconds = (now - lastUpdateTimestamp) / 1000;
+            const videosCount = currentUser.videos.length;
+            const newSubscribers = calculateNewSubscribers(currentSubscribers);
 
-            let totalNewSubscribers = 0;
-
-            // Increment based on milestones
-            totalNewSubscribers += calculateMilestoneSubscribers(currentSubscribers);
-
-            // Increment based on video views
-            currentUser.videos.forEach((video) => {
-                const views = video.stats.views;
-                const videoSubscribers = Math.floor(views / 30); // 1 subscriber per 30 views
-                totalNewSubscribers += videoSubscribers;
-            });
-
-            // Adjust total new subscribers based on time passed since last update
-            const gainPerSecond = totalNewSubscribers / 2; // Gains every 2 seconds
-            const adjustedGains = gainPerSecond * timeDiffInSeconds;
-
-            currentSubscribers += Math.floor(adjustedGains);
+            currentSubscribers += newSubscribers;
             document.getElementById('subscriber-count').textContent = currentSubscribers;
-
-            // Update last update timestamp
-            lastUpdateTimestamp = now;
 
             // Store updated subscriber count in localStorage
             localStorage.setItem('subscriberCount', currentSubscribers.toString());
         }
 
-        function calculateMilestoneSubscribers(currentSubscribers) {
+        function calculateNewSubscribers(currentSubscribers) {
             if (currentSubscribers >= 100000000) {
                 return 20000;
             } else if (currentSubscribers >= 1000000) {
@@ -176,10 +156,23 @@
             }
         }
 
-        function resetSubscribers() {
-            currentSubscribers = 0;
-            localStorage.setItem('subscriberCount', '0');
-            document.getElementById('subscriber-count').textContent = '0';
+        function publishVideo() {
+            // Simulate publishing a new video
+            const newVideo = {
+                title: `New Video ${currentUser.videos.length + 1}`,
+                thumbnail: 'default-thumbnail.jpg',
+                stats: {
+                    views: Math.floor(Math.random() * 10000) + 1000, // Random views for demonstration
+                    likes: 0,
+                    comments: 0,
+                    shares: 0
+                }
+            };
+
+            currentUser.videos.push(newVideo);
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            displayPublishedVideos(); // Refresh the video list after publishing
+            updateSubscriberCount(); // Update subscriber count after publishing
         }
 
         function viewStats(videoIndex) {
@@ -223,6 +216,13 @@
             if (storedUser) {
                 currentUser = storedUser;
                 currentSubscribers = parseInt(localStorage.getItem('subscriberCount')) || 0;
+            } else {
+                currentUser = {
+                    channelName: 'Your Channel',
+                    channelDescription: 'Description of your channel',
+                    videos: []
+                };
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
             updateUI();
 
