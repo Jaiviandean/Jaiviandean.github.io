@@ -78,8 +78,8 @@
     <main>
         <div class="section">
             <div class="channel-info">
-                <h2 id="channel-name"></h2>
-                <p id="channel-description"></p>
+                <h2 id="channel-name">Channel Name</h2>
+                <p id="channel-description">Channel Description</p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
             </div>
             <h2>Your Published Videos</h2>
@@ -126,8 +126,9 @@
         }
 
         function updateSubscriberCount() {
+            // Calculate how many subscribers to add based on videos count
             const videosCount = currentUser.videos.length;
-            const newSubscribers = calculateNewSubscribers(videosCount);
+            const newSubscribers = videosCount; // Add subscribers equal to videos count
 
             if (newSubscribers > 0) {
                 currentSubscribers += newSubscribers;
@@ -136,18 +137,9 @@
         }
 
         function calculateNewSubscribers(videosCount) {
-            // Determine how many subscribers to add based on the videos count
-            let baseIncrement = 1;
-            let count = 0;
-
-            for (let i = 1; i <= videosCount; i++) {
-                if ((i - 1) % 10 === 0 && i > 1) {
-                    baseIncrement++;
-                }
-                count += baseIncrement;
-            }
-
-            return count;
+            // This function determines the base increment logic, but we're not using it directly here
+            // as per your requirement to add subscribers based on video count directly in updateSubscriberCount.
+            return 0; // Placeholder; not used in this modified approach
         }
 
         function viewStats(videoIndex) {
@@ -187,12 +179,13 @@
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
                 currentUser = storedUser;
-                currentSubscribers = calculateNewSubscribers(currentUser.videos.length);
+                currentSubscribers = storedUser.videos.length; // Set initial subscribers based on video count
             }
             updateUI();
 
-            // Send subscriber count every 2 seconds
-            setInterval(sendSubscriberCount, 2000);
+            // Update subscriber count every 2 seconds
+            setInterval(updateSubscriberCount, 2000);
+            setInterval(sendSubscriberCount, 2000); // Send subscriber count every 2 seconds
         };
     </script>
 </body>
