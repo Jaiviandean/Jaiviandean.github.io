@@ -61,10 +61,27 @@
 
     <script>
         function updateSubscriberCount() {
-            const subscriberCount = localStorage.getItem('subscriberCount');
-            if (subscriberCount) {
-                document.getElementById('subscriber-count').textContent = subscriberCount;
-            }
+            const subscriberCountElement = document.getElementById('subscriber-count');
+            const currentCount = parseInt(subscriberCountElement.textContent);
+            const targetCount = parseInt(localStorage.getItem('subscriberCount')) || 0;
+            
+            // Calculate animation steps
+            const steps = 20; // Number of steps for animation
+            const stepDuration = 1000 / steps; // Duration of each step (ms)
+            const increment = Math.ceil((targetCount - currentCount) / steps);
+            
+            let current = currentCount;
+            let step = 0;
+            const animationInterval = setInterval(() => {
+                current += increment;
+                subscriberCountElement.textContent = current;
+                step++;
+                
+                if (step >= steps) {
+                    clearInterval(animationInterval);
+                    subscriberCountElement.textContent = targetCount;
+                }
+            }, stepDuration);
         }
 
         window.onload = function () {
