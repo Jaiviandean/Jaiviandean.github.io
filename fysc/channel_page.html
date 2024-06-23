@@ -81,6 +81,7 @@
                 <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
                 <p id="channel-description"></p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
+                <button class="btn" onclick="resetSubscribers()">Reset Subscribers</button>
             </div>
             <h2>Your Published Videos</h2>
             <div id="published-video-list"></div>
@@ -90,6 +91,7 @@
     <script>
         let currentUser = null;
         let currentSubscribers = 0;
+        let lastUpdateTimestamp = 0; // Track the last update timestamp
 
         function updateUI() {
             const channelName = document.getElementById('channel-name');
@@ -127,6 +129,9 @@
         }
 
         function updateSubscriberCount() {
+            const now = Date.now();
+            const timeDiffInSeconds = (now - lastUpdateTimestamp) / 1000;
+
             let totalNewSubscribers = 0;
 
             // Increment based on milestones
@@ -139,8 +144,15 @@
                 totalNewSubscribers += videoSubscribers;
             });
 
-            currentSubscribers += totalNewSubscribers;
+            // Adjust total new subscribers based on time passed since last update
+            const gainPerSecond = totalNewSubscribers / 2; // Gains every 2 seconds
+            const adjustedGains = gainPerSecond * timeDiffInSeconds;
+
+            currentSubscribers += Math.floor(adjustedGains);
             document.getElementById('subscriber-count').textContent = currentSubscribers;
+
+            // Update last update timestamp
+            lastUpdateTimestamp = now;
 
             // Store updated subscriber count in localStorage
             localStorage.setItem('subscriberCount', currentSubscribers.toString());
@@ -162,6 +174,12 @@
             } else {
                 return 1; // Default increment
             }
+        }
+
+        function resetSubscribers() {
+            currentSubscribers = 0;
+            localStorage.setItem('subscriberCount', '0');
+            document.getElementById('subscriber-count').textContent = '0';
         }
 
         function viewStats(videoIndex) {
