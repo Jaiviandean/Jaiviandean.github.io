@@ -115,28 +115,38 @@
                 videoItem.innerHTML = `
                     <img src="${video.thumbnail}" alt="Thumbnail">
                     <h3>${video.title}</h3>
+                    <p>Views: ${video.stats.views}</p>
                     <button class="btn" onclick="viewStats(${index})">View Stats</button>
                     <button class="btn" onclick="deleteVideo(${index})">Delete</button>
                 `;
                 publishedVideoList.appendChild(videoItem);
             });
 
-            // Update subscriber count based on videos count
+            // Update subscriber count based on videos count and views
             updateSubscriberCount();
         }
 
         function updateSubscriberCount() {
-            const videosCount = currentUser.videos.length;
-            const newSubscribers = calculateNewSubscribers(currentSubscribers);
+            let totalNewSubscribers = 0;
 
-            currentSubscribers += newSubscribers;
+            // Increment based on milestones
+            totalNewSubscribers += calculateMilestoneSubscribers(currentSubscribers);
+
+            // Increment based on video views
+            currentUser.videos.forEach((video) => {
+                const views = video.stats.views;
+                const videoSubscribers = Math.floor(views / 100); // 1 subscriber per 100 views
+                totalNewSubscribers += videoSubscribers;
+            });
+
+            currentSubscribers += totalNewSubscribers;
             document.getElementById('subscriber-count').textContent = currentSubscribers;
 
             // Store updated subscriber count in localStorage
             localStorage.setItem('subscriberCount', currentSubscribers.toString());
         }
 
-        function calculateNewSubscribers(currentSubscribers) {
+        function calculateMilestoneSubscribers(currentSubscribers) {
             if (currentSubscribers >= 100000000) {
                 return 20000;
             } else if (currentSubscribers >= 1000000) {
