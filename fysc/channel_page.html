@@ -86,7 +86,6 @@
             </div>
             <h2>Your Published Videos</h2>
             <div id="published-video-list"></div>
-            <button class="btn" onclick="publishVideo()">Publish Video</button>
         </div>
     </main>
 
@@ -171,10 +170,16 @@
                 }
             };
 
+            // Add views divided by 25 to subscriber count
+            const views = newVideo.stats.views;
+            const viewsPerSubscriber = Math.round(views / 25);
+            currentSubscribers += viewsPerSubscriber;
+            document.getElementById('subscriber-count').textContent = currentSubscribers;
+
             currentUser.videos.push(newVideo);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             displayPublishedVideos(); // Refresh the video list after publishing
-            updateSubscriberCount(); // Update subscriber count after publishing
+            // updateSubscriberCount(); // Update subscriber count after publishing (now handled directly)
         }
 
         function viewStats(videoIndex) {
@@ -233,9 +238,6 @@
                 localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
             updateUI();
-
-            // Update subscriber count every 2 seconds
-            setInterval(updateSubscriberCount, 2000);
         };
     </script>
 </body>
