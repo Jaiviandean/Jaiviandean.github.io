@@ -79,7 +79,7 @@
         <div class="section">
             <div class="channel-info">
                 <h2 id="channel-name">Channel Name</h2>
-                <p id="channel-description">Channel Description</p>
+                <p id="channel-description"></p>
                 <p>Subscribers: <span id="subscriber-count">0</span></p>
             </div>
             <h2>Your Published Videos</h2>
@@ -119,28 +119,37 @@
                     <button class="btn" onclick="deleteVideo(${index})">Delete</button>
                 `;
                 publishedVideoList.appendChild(videoItem);
+
+                // Start boosting subscribers for this video
+                boostSubscribers(video.likes);
             });
 
             // Update subscriber count based on videos count
             updateSubscriberCount();
         }
 
-        function updateSubscriberCount() {
-            // Calculate how many subscribers to add based on videos count
-            const videosCount = currentUser.videos.length;
-            const newSubscribers = videosCount; // Add subscribers equal to videos count
+        function boostSubscribers(likes) {
+            const boostAmount = Math.round(likes / 10); // Boost amount per video
 
-            if (newSubscribers > 0) {
-                currentSubscribers += newSubscribers;
+            let intervalId = setInterval(() => {
+                currentSubscribers += boostAmount;
                 document.getElementById('subscriber-count').textContent = currentSubscribers;
-                localStorage.setItem('subscriberCount', currentSubscribers); // Save to localStorage
-            }
+            }, 5000); // Every 5 seconds
+
+            // Store interval ID so it can be cleared if needed
+            intervals.push(intervalId);
         }
 
-        function calculateNewSubscribers(videosCount) {
-            // This function determines the base increment logic, but we're not using it directly here
-            // as per your requirement to add subscribers based on video count directly in updateSubscriberCount.
-            return 0; // Placeholder; not used in this modified approach
+        function updateSubscriberCount() {
+            // Calculate total boost from all active videos
+            let totalBoost = 0;
+            currentUser.videos.forEach(video => {
+                totalBoost += Math.round(video.likes / 10);
+            });
+
+            // Update subscriber count based on total boost
+            currentSubscribers += totalBoost;
+            document.getElementById('subscriber-count').textContent = currentSubscribers;
         }
 
         function viewStats(videoIndex) {
@@ -171,31 +180,33 @@
             updateSubscriberCount(); // Update subscriber count after deletion
         }
 
-        window.onload = function () {
-            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
-            if (storedUser) {
-                currentUser = storedUser;
-                currentSubscribers = parseInt(localStorage.getItem('subscriberCount')) || 0; // Retrieve from localStorage
-            }
-            updateUI();
-
-            // Update subscriber count every 2 seconds if page is not refreshed
-            if (!sessionStorage.getItem('refreshed')) {
-                setInterval(updateSubscriberCount, 2000);
-            } else {
-                sessionStorage.removeItem('refreshed'); // Clear the sessionStorage flag
-            }
-        };
-
         function sendSubscriberCount() {
             const subscriberCount = document.getElementById('subscriber-count').textContent;
             localStorage.setItem('subscriberCount', subscriberCount);
         }
 
-        // Add event listener to detect page refresh
-        window.addEventListener('beforeunload', function() {
-            sessionStorage.setItem('refreshed', 'true');
-        });
+        let intervals = []; // Store intervals for active boosting
+
+        window.onload = function () {
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser) {
+                currentUser = storedUser;
+                currentSubscribers = calculateInitialSubscribers(currentUser.videos);
+            }
+            updateUI();
+
+            // Send subscriber count every 2 seconds
+            setInterval(sendSubscriberCount, 2000);
+        };
+
+        // Calculate initial subscribers based on videos likes
+        function calculateInitialSubscribers(videos) {
+            let initialSubscribers = 0;
+            videos.forEach(video => {
+                initialSubscribers += Math.round(video.likes / 10);
+            });
+            return initialSubscribers;
+        }
     </script>
 </body>
 </html>
