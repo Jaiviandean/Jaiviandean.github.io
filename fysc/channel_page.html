@@ -182,6 +182,14 @@
             updateSubscriberCount(); // Update subscriber count after deletion
         }
 
+        // Disable page refresh
+        window.addEventListener('beforeunload', function (e) {
+            // Cancel the event
+            e.preventDefault();
+            // Chrome requires returnValue to be set
+            e.returnValue = '';
+        });
+
         window.onload = function () {
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser) {
