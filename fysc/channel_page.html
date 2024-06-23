@@ -179,15 +179,23 @@
             }
             updateUI();
 
-            // Update subscriber count every 2 seconds
-            setInterval(updateSubscriberCount, 2000);
-            setInterval(sendSubscriberCount, 2000); // Send subscriber count every 2 seconds
+            // Update subscriber count every 2 seconds if page is not refreshed
+            if (!sessionStorage.getItem('refreshed')) {
+                setInterval(updateSubscriberCount, 2000);
+            } else {
+                sessionStorage.removeItem('refreshed'); // Clear the sessionStorage flag
+            }
         };
 
         function sendSubscriberCount() {
             const subscriberCount = document.getElementById('subscriber-count').textContent;
             localStorage.setItem('subscriberCount', subscriberCount);
         }
+
+        // Add event listener to detect page refresh
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('refreshed', 'true');
+        });
     </script>
 </body>
 </html>
