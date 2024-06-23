@@ -165,7 +165,7 @@
                 title: `New Video ${currentUser.videos.length + 1}`,
                 thumbnail: 'default-thumbnail.jpg',
                 stats: {
-                    views: Math.floor(Math.random() * 10000) + 1000, // Random views for demonstration
+                    views: currentSubscribers * 25, // Views based on current subscribers
                     likes: 0,
                     comments: 0,
                     shares: 0
@@ -181,7 +181,6 @@
             currentUser.videos.push(newVideo);
             localStorage.setItem('currentUser', JSON.stringify(currentUser));
             displayPublishedVideos(); // Refresh the video list after publishing
-            // updateSubscriberCount(); // Update subscriber count after publishing (now handled directly)
         }
 
         function viewStats(videoIndex) {
