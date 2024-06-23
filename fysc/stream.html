@@ -55,7 +55,7 @@
         <div class="channel-info">
             <img src="default-avatar.png" alt="Profile Picture">
             <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
-            <p>Subscribers: <span id="subscriber-count">00000</span></p> <!-- Placeholder for odometer effect -->
+            <p>Subscribers: <span id="subscriber-count">0</span></p>
         </div>
     </main>
 
@@ -67,47 +67,14 @@
             // Fetch channel name from localStorage of channel_page.html
             const storedUser = JSON.parse(localStorage.getItem('currentUser'));
             if (storedUser && storedUser.channelName) {
-                animateText(channelNameElement, storedUser.channelName);
+                channelNameElement.textContent = storedUser.channelName;
             }
 
             // Fetch subscriber count from localStorage (as updated by channel_page.html)
             const subscriberCount = localStorage.getItem('subscriberCount');
             if (subscriberCount) {
-                animateOdometer(subscriberCountElement, parseInt(subscriberCount));
+                subscriberCountElement.textContent = subscriberCount;
             }
-        }
-
-        // Function to animate text change
-        function animateText(element, newText) {
-            const oldText = element.textContent;
-            const length = Math.max(oldText.length, newText.length);
-            let currentText = oldText;
-
-            const animationInterval = setInterval(() => {
-                currentText = newText.substring(0, currentText.length + 1);
-                element.textContent = currentText;
-
-                if (currentText === newText) {
-                    clearInterval(animationInterval);
-                }
-            }, 50); // Adjust speed as needed
-        }
-
-        // Function to animate odometer effect
-        function animateOdometer(element, newValue) {
-            const oldValue = parseInt(element.textContent);
-            const increment = Math.ceil((newValue - oldValue) / 20); // Number of steps
-
-            let currentValue = oldValue;
-            const animationInterval = setInterval(() => {
-                currentValue += increment;
-                element.textContent = currentValue.toString().padStart(5, '0'); // Format as 5-digit number
-
-                if ((increment > 0 && currentValue >= newValue) || (increment < 0 && currentValue <= newValue)) {
-                    element.textContent = newValue.toString().padStart(5, '0');
-                    clearInterval(animationInterval);
-                }
-            }, 50); // Adjust speed as needed
         }
 
         window.onload = function () {
