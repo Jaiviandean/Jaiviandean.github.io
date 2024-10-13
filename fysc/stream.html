@@ -1,776 +1,87 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>StatTube™</title>
-
-    <link rel="icon" href="stm.png" type="image/png">
-
+    <title>Stream Page</title>
     <style>
         body {
-            font-family: Asimov, sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #333;
+            color: #fff;
         }
-
-        .header {
-            background-color: white;
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #ccc;
-            position: relative;
-        }
-
-        .logo img {
-            height: 30px; 
-        }
-
-        .icon-container {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            position: relative;
-        }
-
-        .icon-container img {
-            width: 30px;
-            height: 30px;
-            cursor: pointer;
-        }
-
-        .profile-pic {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            object-fit: cover;
-        }
-
-        /* Upload Commands Styles */
-        .upload-commands {
-            display: none;
-            position: absolute;
-            top: 70px;
-            right: 20px;
-            background: white;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            padding: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 1000;
-        }
-
-        .upload-commands button {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #1a9af7;
+        header {
+            background-color: #333;
             color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            padding: 10px 0;
+            text-align: center;
         }
-
-        .upload-commands button:hover {
-            background-color: #155d9c;
-        }
-
-        .content {
-            max-width: 1200px;
-            margin: 50px auto;
-            text-align: left;
-            padding: 0 20px;
-        }
-
-        h2 {
-            margin-bottom: 20px;
-        }
-
-        .video-container {
+        main {
             display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            text-align: center;
         }
-
-        .video-card {
-            background-color: #ddd;
-            border-radius: 15px;
-            padding: 15px;
-            width: 200px;
-            height: auto;
-            display: inline-block;
-            transition: background-color 0.3s;
-            position: relative;
-        }
-
-        .video-card:hover {
-            background-color: #ccc;
-        }
-
-        .video-card p {
-            font-size: 12px;
-            color: #555;
-            margin: 10px 0;
-        }
-
-        .video-card img {
-            width: 100%;
-            height: auto;
+        .channel-info {
+            background-color: #555;
+            padding: 20px;
             border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
         }
-
-        /* Counters Styles */
-        .counters {
-            margin-top: 30px;
-            display: flex;
-            gap: 30px;
-            flex-wrap: wrap;
-        }
-
-        .counter {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            flex: 1 1 200px;
-            text-align: center;
-        }
-
-        .counter h3 {
-            margin-bottom: 10px;
-            color: #1a9af7;
-        }
-
-        .counter .odometer {
-            font-size: 36px;
-            font-weight: bold;
-            color: #333;
-        }
-
-        /* Studio Dashboard Styles */
-        .studio-dashboard {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 999;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .studio-content {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 800px;
-            width: 100%;
-            position: relative;
-        }
-
-        .studio-content h2 {
-            color: #1a9af7;
-            margin-top: 0;
-        }
-
-        .studio-content .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 18px;
-            cursor: pointer;
-        }
-
-        .studio-content .stats-tabs {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stats-tabs div {
-            padding: 10px 20px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            cursor: pointer;
-            font-weight: bold;
-            color: #777;
-            transition: background-color 0.3s;
-        }
-
-        .stats-tabs .active {
-            background-color: #ff5e5e;
-            color: white;
-        }
-
-        .stats-content {
-            margin-top: 20px;
-            border-radius: 15px;
-            padding: 20px;
-            background: linear-gradient(to bottom, #fce8e8, white);
-        }
-
-        .stats-content canvas {
-            width: 100%;
-            height: 300px;
-        }
-
-        /* Sign-In Modal Styles */
-        .signin-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.8);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .signin-content {
-            background-color: white;
-            border-radius: 10px;
-            padding: 30px;
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-            position: relative;
-        }
-
-        .signin-content input {
-            margin: 10px 0;
-            padding: 10px;
-            width: 90%;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-        }
-
-        .signin-content button {
-            padding: 10px 20px;
-            background-color: #1a9af7;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-top: 10px;
-        }
-
-        .signin-content h2 {
-            color: #1a9af7;
+        .channel-info img {
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
             margin-bottom: 20px;
         }
-
-        .signin-content .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-size: 18px;
-            cursor: pointer;
+        .channel-info h2 {
+            margin: 0;
+            font-size: 24px;
         }
-
-        .signin-content label {
-            display: block;
-            text-align: left;
-            font-size: 14px;
-            color: #555;
-            margin-top: 10px;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 600px) {
-            .studio-content {
-                padding: 20px;
-            }
-
-            .upload-commands {
-                right: 10px;
-                top: 60px;
-            }
-
-            .counters {
-                flex-direction: column;
-                gap: 20px;
-            }
+        .channel-info p {
+            margin: 5px 0 0;
+            font-size: 20px;
         }
     </style>
-
-    <!-- Include Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Include Odometer.js for animated counters -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/themes/odometer-theme-default.min.css" integrity="sha512-owAm2LUwRLqPwvqgSC0GqzYq4smvFYrZBGiQ2nEfb2LOFzFMokhGh4x96WZEOEfN3RAoBL9GDFOWN42Bd/XJpg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/odometer.js/0.4.8/odometer.min.js" integrity="sha512-NXUgLBOsEH3vLvY2r+RhB1ckB8VFws/++81o4rP15qm1zOM4IZB3XnVbMUubS4uXINIXt63bN86C6MUb2OciwQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 </head>
 <body>
-
-    <div class="header">
-        <div class="logo">
-            <img src="StatTube Logo.png" alt="StatTube Logo"> 
+    <header>
+        <h1>Stream Page</h1>
+    </header>
+    <main>
+        <div class="channel-info">
+            <img src="default-avatar.png" alt="Profile Picture">
+            <h2 id="channel-name">Loading...</h2> <!-- Placeholder text -->
+            <p>Subscribers: <span id="subscriber-count">0</span></p>
         </div>
-        
-        <div class="icon-container">
-            <img src="upload_symbol_thing.png" alt="Upload" id="uploadIcon" onclick="toggleUploadCommands()">
-            <img src="graphs_lol.png" alt="Statistics" id="graphIcon" onclick="showStudio()">
-            <img id="profilePic" class="profile-pic" src="default_pfp.jfif" alt="Profile Picture" onclick="openSignInModal()">
-        </div>
-    </div>
+    </main>
 
-    <!-- Upload Commands Container -->
-    <div id="uploadCommands" class="upload-commands">
-        <button onclick="sendCommand('!video')">!video</button>
-        <button onclick="sendCommand('!short')">!short</button>
-        <button onclick="sendCommand('!livestream')">!livestream</button>
-        <button onclick="sendCommand('!post')">!post</button>
-        <button onclick="sendCommand('!stream')">!stream</button>
-    </div>
-
-    <div class="content">
-        <h2>Recommended for you</h2>
-
-        <div class="video-container">
-            <div class="video-card">
-                <p>Welcome people.</p>
-                <p>StatTube Official</p>
-            </div>
-            <!-- Add more video cards as needed -->
-        </div>
-
-        <!-- Counters Display -->
-        <div class="counters">
-            <div class="counter">
-                <h3>Subscribers</h3>
-                <div class="odometer" id="subscriberCount">0</div>
-            </div>
-            <div class="counter">
-                <h3>Views</h3>
-                <div class="odometer" id="viewCount">0</div>
-            </div>
-            <div class="counter">
-                <h3>Likes</h3>
-                <div class="odometer" id="likeCount">0</div>
-            </div>
-        </div>
-
-        <div id="studioDashboard" class="studio-dashboard">
-            <div class="studio-content">
-                <span class="close-btn" onclick="closeStudio()">✖</span>
-                <h2 id="statsTitle">Your Performance</h2>
-
-                <div class="stats-tabs">
-                    <div class="active" onclick="selectTab(this, 'Subscribers')">Subscribers</div>
-                    <div onclick="selectTab(this, 'Views')">Views</div>
-                    <div onclick="selectTab(this, 'Likes')">Likes</div>
-                    <div onclick="selectTab(this, 'Comments')">Comments</div>
-                </div>
-
-                <div class="stats-content">
-                    <canvas id="statsGraph"></canvas>
-                </div>
-            </div>
-        </div>
-
-        <div id="signinModal" class="signin-modal">
-            <div class="signin-content">
-                <span class="close-btn" onclick="closeSignInModal()">✖</span>
-                <h2>Sign Up for StatTube™</h2>
-                <label for="username">Username</label>
-                <input type="text" id="username" placeholder="Enter your username" required>
-                
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-
-                <label for="profilePicture">Profile Picture</label>
-                <input type="file" id="profilePicture" accept="image/*" required>
-
-                <button onclick="signIn()">Sign In</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Main JavaScript -->
     <script>
-        // Initialize variables
-        let chart;
-        const ctx = document.getElementById('statsGraph').getContext('2d');
+        function updateChannelInfo() {
+            const channelNameElement = document.getElementById('channel-name');
+            const subscriberCountElement = document.getElementById('subscriber-count');
 
-        // Subscriber Data Configuration
-        let subscriberCount = 0;
-        let viewCount = 0;
-        let likeCount = 0;
-        let subscriberData = []; // To store subscriber data for the graph
-        const maxDataPoints = 7; // Number of data points on the graph
-
-        // Define subscriber, view, and like gain ranges for each command
-        const commandGains = {
-            '!video': { 
-                sub: { min: 50, max: 150 }, 
-                view: { min: 10000, max: 100000 }, 
-                like: { min: 200, max: 500 }
-            },
-            '!short': { 
-                sub: { min: 30, max: 100 }, 
-                view: { min: 6000, max: 80000 }, 
-                like: { min: 100, max: 300 }
-            },
-            '!livestream': { 
-                sub: { min: 100, max: 250 }, 
-                view: { min: 100000, max: 500000 }, 
-                like: { min: 300, max: 800 }
-            },
-            '!post': { 
-                sub: { min: 20, max: 80 }, 
-                view: { min: 5000, max: 70000 }, 
-                like: { min: 50, max: 200 }
-            },
-            '!stream': { 
-                sub: { min: 70, max: 200 }, 
-                view: { min: 70000, max: 400000 }, 
-                like: { min: 150, max: 600 }
-            }
-        };
-
-        // Function to create or update the chart
-        function createChart(type) {
-            if (chart) {
-                chart.destroy();
+            // Fetch channel name from localStorage of channel_page.html
+            const storedUser = JSON.parse(localStorage.getItem('currentUser'));
+            if (storedUser && storedUser.channelName) {
+                channelNameElement.textContent = storedUser.channelName;
             }
 
-            let labels = [];
-            let dataPoints = [];
-
-            // Generate labels based on data points
-            if (type === 'Subscribers') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = subscriberData;
-            } else if (type === 'Views') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = viewData;
-            } else if (type === 'Likes') {
-                labels = subscriberData.map((_, index) => `Day ${index + 1}`);
-                dataPoints = likeData;
-            } else {
-                // Placeholder for other types like Comments
-                labels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'];
-                dataPoints = Array.from({ length: 7 }, () => Math.floor(Math.random() * 100));
-            }
-
-            let datasetConfig = {};
-            if (type === 'Subscribers') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(255, 94, 94, 0.6)',
-                    borderColor: 'rgba(255, 94, 94, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            } else if (type === 'Views') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(94, 255, 94, 0.6)',
-                    borderColor: 'rgba(94, 255, 94, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            } else if (type === 'Likes') {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(94, 94, 255, 0.6)',
-                    borderColor: 'rgba(94, 94, 255, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            } else {
-                datasetConfig = {
-                    label: type,
-                    data: dataPoints,
-                    backgroundColor: 'rgba(200, 200, 200, 0.6)',
-                    borderColor: 'rgba(200, 200, 200, 1)',
-                    borderWidth: 2,
-                    fill: true,
-                    tension: 0.4
-                };
-            }
-
-            const data = {
-                labels: labels,
-                datasets: [datasetConfig]
-            };
-
-            chart = new Chart(ctx, {
-                type: 'line',
-                data: data,
-                options: {
-                    responsive: true,
-                    plugins: {
-                        legend: {
-                            display: true,
-                            labels: {
-                                color: '#333'
-                            }
-                        }
-                    },
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: {
-                                color: '#555'
-                            }
-                        },
-                        x: {
-                            ticks: {
-                                color: '#555'
-                            }
-                        }
-                    }
-                }
-            });
-        }
-
-        // Function to select and activate a tab
-        function selectTab(element, type) {
-            document.querySelector('.stats-tabs .active').classList.remove('active');
-            element.classList.add('active');
-            document.getElementById('statsTitle').textContent = `Your ${type} Performance`;
-
-            if (type === 'Subscribers') {
-                createChart('Subscribers');
-            } else if (type === 'Views') {
-                createChart('Views');
-            } else if (type === 'Likes') {
-                createChart('Likes');
-            } else {
-                // Handle other types like Comments
-                createChart(type);
+            // Fetch subscriber count from localStorage (as updated by channel_page.html)
+            const subscriberCount = localStorage.getItem('subscriberCount');
+            if (subscriberCount) {
+                subscriberCountElement.textContent = subscriberCount;
             }
         }
 
-        // Function to show the studio dashboard
-        function showStudio() {
-            document.getElementById('studioDashboard').style.display = 'flex';
-            createChart('Subscribers');
-        }
+        window.onload = function () {
+            updateChannelInfo();
 
-        // Function to close the studio dashboard
-        function closeStudio() {
-            document.getElementById('studioDashboard').style.display = 'none';
-        }
-
-        // Function to open the sign-in modal
-        function openSignInModal() {
-            document.getElementById('signinModal').style.display = 'flex';
-        }
-
-        // Function to close the sign-in modal
-        function closeSignInModal() {
-            document.getElementById('signinModal').style.display = 'none';
-        }
-
-        // Function to handle user sign-in
-        function signIn() {
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value.trim();
-            const profilePicture = document.getElementById('profilePicture').files[0];
-
-            if (!username || !password || !profilePicture) {
-                alert("Please fill in all fields.");
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onloadend = function() {
-                const profilePicURL = reader.result;
-
-                // Retrieve existing users from localStorage
-                let users = JSON.parse(localStorage.getItem('users')) || {};
-
-                if (users[username]) {
-                    alert("Username already exists. Please choose a different username.");
-                    return;
-                }
-
-                // Store user data in localStorage
-                const userData = {
-                    username: username,
-                    password: password, // Note: Storing passwords in plain text is insecure. Use hashing in production.
-                    profilePicture: profilePicURL,
-                    subscriberCount: 0,
-                    viewCount: 0,
-                    likeCount: 0,
-                    subscriberData: [0],
-                    viewData: [0],
-                    likeData: [0]
-                };
-                users[username] = userData;
-                localStorage.setItem('users', JSON.stringify(users));
-
-                // Set the current user
-                localStorage.setItem('currentUser', username);
-
-                closeSignInModal();
-                updateProfileUI();
-                updateCountersUI();
-            };
-            reader.readAsDataURL(profilePicture);
-        }
-
-        // Function to handle user login (not implemented)
-        // You can expand this functionality as needed.
-
-        // Function to update the profile UI after sign-in
-        function updateProfileUI() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('users'));
-                const userData = users[currentUser];
-                if (userData && userData.profilePicture) {
-                    document.getElementById('profilePic').src = userData.profilePicture;
-                }
-            }
-        }
-
-        // Function to update the counters
-        function updateCountersUI() {
-            const currentUser = localStorage.getItem('currentUser');
-            if (currentUser) {
-                const users = JSON.parse(localStorage.getItem('users'));
-                const userData = users[currentUser];
-                if (userData) {
-                    subscriberCount = userData.subscriberCount;
-                    viewCount = userData.viewCount;
-                    likeCount = userData.likeCount;
-                    subscriberData = userData.subscriberData;
-                    viewData = userData.viewData;
-                    likeData = userData.likeData;
-
-                    // Update the odometer
-                    odometerUpdate('subscriberCount', subscriberCount);
-                    odometerUpdate('viewCount', viewCount);
-                    odometerUpdate('likeCount', likeCount);
-
-                    // Initialize the chart
-                    createChart('Subscribers');
-                }
-            } else {
-                // If no user is signed in, reset to default
-                subscriberCount = 0;
-                viewCount = 0;
-                likeCount = 0;
-                subscriberData = [0];
-                viewData = [0];
-                likeData = [0];
-                odometerUpdate('subscriberCount', subscriberCount);
-                odometerUpdate('viewCount', viewCount);
-                odometerUpdate('likeCount', likeCount);
-                createChart('Subscribers');
-            }
-        }
-
-        // Function to toggle the visibility of upload commands
-        function toggleUploadCommands() {
-            const uploadCommands = document.getElementById('uploadCommands');
-            if (uploadCommands.style.display === 'none' || uploadCommands.style.display === '') {
-                uploadCommands.style.display = 'block';
-            } else {
-                uploadCommands.style.display = 'none';
-            }
-        }
-
-        // Function to send a command and handle gains
-        function sendCommand(command) {
-            const currentUser = localStorage.getItem('currentUser');
-            if (!currentUser) {
-                alert("Please sign in to perform this action.");
-                return;
-            }
-
-            const users = JSON.parse(localStorage.getItem('users'));
-            const userData = users[currentUser];
-
-            if (!commandGains[command]) {
-                alert("Invalid command.");
-                return;
-            }
-
-            // Calculate random gains within the specified ranges
-            const subGain = getRandomInt(commandGains[command].sub.min, commandGains[command].sub.max);
-            const viewGain = getRandomInt(commandGains[command].view.min, commandGains[command].view.max);
-            const likeGain = getRandomInt(commandGains[command].like.min, commandGains[command].like.max);
-
-            // Update counts
-            userData.subscriberCount += subGain;
-            userData.viewCount += viewGain;
-            userData.likeCount += likeGain;
-
-            // Update data histories
-            if (userData.subscriberData.length >= maxDataPoints) {
-                userData.subscriberData.shift(); // Remove oldest data point
-            }
-            userData.subscriberData.push(userData.subscriberCount);
-
-            if (userData.viewData.length >= maxDataPoints) {
-                userData.viewData.shift();
-            }
-            userData.viewData.push(userData.viewCount);
-
-            if (userData.likeData.length >= maxDataPoints) {
-                userData.likeData.shift();
-            }
-            userData.likeData.push(userData.likeCount);
-
-            // Save back to localStorage
-            users[currentUser] = userData;
-            localStorage.setItem('users', JSON.stringify(users));
-
-            // Update the global variables
-            subscriberCount = userData.subscriberCount;
-            viewCount = userData.viewCount;
-            likeCount = userData.likeCount;
-            subscriberData = userData.subscriberData;
-            viewData = userData.viewData;
-            likeData = userData.likeData;
-
-            // Update the UI
-            odometerUpdate('subscriberCount', subscriberCount);
-            odometerUpdate('viewCount', viewCount);
-            odometerUpdate('likeCount', likeCount);
-            createChart('Subscribers');
-
-            // Provide feedback to the user
-            alert(`Command "${command}" executed!\nGained ${subGain} subscribers, ${viewGain} views, and ${likeGain} likes.`);
-
-            // Hide upload commands after execution
-            toggleUploadCommands();
-        }
-
-        // Utility function to get a random integer between min and max (inclusive)
-        function getRandomInt(min, max) {
-            return Math.floor(Math.random() * (max - min + 1)) + min;
-        }
-
-        // Function to update the counters with Odometer animation
-        function odometerUpdate(elementId, newCount) {
-            const odometerElem = document.getElementById(elementId);
-            odometerElem.innerHTML = newCount;
-        }
-
-        // Initialize the application on page load
-        window.onload = function() {
-            updateProfileUI();
-            updateCountersUI();
+            // Update channel info every 2 seconds
+            setInterval(updateChannelInfo, 2000);
         };
     </script>
 </body>
