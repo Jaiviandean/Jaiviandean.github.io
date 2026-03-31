@@ -11,3 +11,7 @@
     background: none; /* Removes the default background */
     cursor: pointer; /* Changes the cursor to a hand icon on hover */
 }
+
+body {
+    background-color: #444444;
+}
