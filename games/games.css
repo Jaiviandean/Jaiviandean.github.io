@@ -1,7 +1,7 @@
 
 .ifm-main {
-  min-height: 100vh; /* Ensures it covers the screen */
-  width: 100%;       /* Full width */
+  min-height: 1080px; /* Ensures it covers the screen */
+  width: 1920px;       /* Full width */
   display: flex;     /* Allows child elements to expand */
   flex-direction: column; /* Organizes children top-to-bottom */
 }
