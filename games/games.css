@@ -1,6 +1,13 @@
 
-.ifm-main {
+#ifm-main {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.image-button {
+    padding: 0; /* Removes default padding */
+    margin: 0; /* Removes default margin */
+    border: none; /* Removes the default border */
+    background: none; /* Removes the default background */
+    cursor: pointer; /* Changes the cursor to a hand icon on hover */
 }
