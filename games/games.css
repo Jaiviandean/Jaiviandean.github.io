@@ -12,6 +12,6 @@
     cursor: pointer; /* Changes the cursor to a hand icon on hover */
 }
 
-body {
+html {
     background-color: #444444;
 }
