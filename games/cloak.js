@@ -10,3 +10,9 @@ iframe.src = url
 win.document.body.appendChild(iframe)
 }
 	
+function utilizeInput() {
+    const element1 = document.getElementById("InputBox");
+    const endValue = element1.value;
+
+    openGame(endValue)
+}
