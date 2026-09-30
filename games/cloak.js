@@ -13,7 +13,7 @@ win.document.body.appendChild(iframe)
 function utilizeInput() {
     const element1 = document.getElementById("InputBox");
     const endValue = element1.value;
-    if (endValue.toLowerCase().includes("https://".toLowerCase())) {
+    if (endValue.toLowerCase().startsWith("https://") || endValue.toLowerCase().startsWith("http://")) {
         openGame(endValue);
     } else {
         openGame("https://" + endValue);
