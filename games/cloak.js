@@ -13,6 +13,9 @@ win.document.body.appendChild(iframe)
 function utilizeInput() {
     const element1 = document.getElementById("InputBox");
     const endValue = element1.value;
-
-    openGame(endValue)
+    if (endValue.toLowerCase().includes("https://".toLowerCase())) {
+        openGame(endValue);
+    } else {
+        openGame("https://" + endValue);
+    }
 }
